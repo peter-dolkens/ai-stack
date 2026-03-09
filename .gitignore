@@ -1,0 +1,12 @@
+# Data volumes - exclude large/generated data
+models/
+data/
+experiments/
+vector-db/
+
+tts/voices/
+whisper/cache/
+
+# Keep compose configs and build context
+!compose/
+!build/

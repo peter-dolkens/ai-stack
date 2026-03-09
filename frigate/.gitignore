@@ -1,0 +1,8 @@
+.env
+nvr.env
+
+disk1/
+disk2/
+media/
+model-cache/
+cache/

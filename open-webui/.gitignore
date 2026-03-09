@@ -1,0 +1,4 @@
+.env
+webui.db
+vector_db/
+uploads/

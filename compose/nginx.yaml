@@ -1,0 +1,44 @@
+name: nginx
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    networks:
+      - proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      certbot:
+        condition: service_healthy
+    volumes:
+      - /ai/nginx/conf.d:/etc/nginx/conf.d:ro
+      - letsencrypt:/etc/letsencrypt:ro
+
+  certbot:
+    build: /ai/build/certbot
+    image: certbot-cloudflare:local
+    container_name: certbot
+    restart: unless-stopped
+    env_file: /ai/nginx/.env
+    volumes:
+      - /ai/nginx/conf.d:/etc/nginx/conf.d:ro
+      - letsencrypt:/etc/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 60  # wait up to 10 minutes for initial cert issue
+      start_period: 5s
+
+volumes:
+  letsencrypt:
+    name: letsencrypt
+
+networks:
+  proxy:
+    external: true
+    name: proxy

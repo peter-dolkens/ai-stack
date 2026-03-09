@@ -1,0 +1,38 @@
+name: frigate
+
+services:
+  frigate:
+    image: frigate-nvenc:local
+    container_name: frigate
+    restart: unless-stopped
+    privileged: true
+    cap_add:
+      - PERFMON
+    shm_size: "1gb"
+    networks:
+      - proxy
+    ports:
+      - "8554:8554"
+      - "8555:8555/tcp"
+      - "8555:8555/udp"
+    volumes:
+      - /ai/frigate/config.yaml:/config/config.yaml
+      - /ai/frigate/media:/media/frigate
+      - /ai/models/frigate:/config/model_cache
+      - /ai/frigate/cache:/tmp/cache
+      - /ai/frigate/disk1:/media/frigate/recordings
+      - /ai/frigate/disk2:/media/frigate/clips
+      - /etc/localtime:/etc/localtime:ro
+    devices:
+      - nvidia.com/gpu=all
+    env_file:
+      - /ai/frigate/.env
+      - /ai/frigate/nvr.env
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+
+networks:
+  proxy:
+    external: true
+    name: proxy

@@ -1,0 +1,317 @@
+go2rtc:
+  streams:
+    house-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_HOUSE_CAM}
+    fruit-patrol:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_FRUIT_PATROL}
+    drive-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DRIVE_CAM}
+    bird-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BIRD_CAM}
+    door-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DOOR_CAM}
+    creek-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_CREEK_CAM}
+    willie-patrol:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_WILLIE_PATROL}
+    shed-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_SHED_CAM}
+    bench-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BENCH_CAM}
+    office-cam:
+      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_OFFICE_CAM}
+
+mqtt:
+  enabled: true
+  host: "{FRIGATE_MQTT_HOSTNAME}"
+  user: "{FRIGATE_MQTT_USERNAME}"
+  password: "{FRIGATE_MQTT_PASSWORD}"
+
+database:
+  path: /media/frigate/frigate.db
+
+detectors:
+  onnx:
+    type: onnx
+
+model:
+  model_type: rfdetr
+  width: 320
+  height: 320
+  input_tensor: nchw
+  input_pixel_format: rgb
+  input_dtype: float
+  path: /config/model_cache/rfdetr-Nano.onnx
+
+detect:
+  enabled: true
+
+ffmpeg:
+  global_args: -hide_banner -loglevel warning -threads 2 -init_hw_device cuda=gpu:0
+  hwaccel_args: -hwaccel cuda
+  output_args:
+    record: -f segment -segment_time 10 -segment_format mp4 -reset_timestamps 1 -strftime 1 -c copy
+
+
+record:
+  enabled: true
+  alerts:
+    pre_capture: 10
+    post_capture: 10
+    retain:
+      days: 31
+  detections:
+    pre_capture: 10
+    post_capture: 10
+    retain:
+      days: 7
+  continuous:
+    days: 0.5
+  motion:
+    days: 7
+snapshots:
+  enabled: true
+  retain:
+    default: 14
+
+cameras:
+  house-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/house-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_HOUSE_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    motion:
+    # threshold: 50
+      mask:
+        - 0,0,420,0,420,30,0,30
+    objects:
+      track:
+        - person
+        - bird
+        - car
+        - bus
+        - motorcycle
+        - cat
+        - dog
+      filters:
+        person:
+          min_score: 0.75
+          min_area: 1500
+
+  fruit-patrol:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/fruit-patrol
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_FRUIT_PATROL_DETECT}
+          roles: [detect]
+    detect:
+      width: 1280
+      height: 720
+      fps: 3
+    motion:
+    # threshold: 50
+      mask:
+        - 0,0,420,0,420,30,0,30
+    objects:
+      track:
+        - person
+        - bird
+        - car
+        - bus
+        - motorcycle
+        - cat
+        - dog
+
+  drive-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/drive-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DRIVE_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 1024
+      height: 576
+      fps: 3
+    motion:
+    # threshold: 50
+      mask:
+        - 0,0,360,0,360,29,0,29
+    objects:
+      track:
+        - person
+        - bird
+        - car
+        - bus
+        - motorcycle
+        - cat
+        - dog
+
+  bird-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/bird-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BIRD_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 1280
+      height: 720
+      fps: 3
+    motion:
+      threshold: 50
+      contour_area: 100
+      improve_contrast: true
+      mask:
+        - 0,0,420,0,420,30,0,30
+        - 0,0,1280,0,1280,380,0,380
+    objects:
+      track:
+        - person
+        - bird
+        - car
+        - bus
+        - motorcycle
+        - cat
+        - dog
+      filters:
+        bird:
+          min_score: 0.65
+          min_area: 500
+        person:
+          min_score: 0.75
+          min_area: 1500
+
+  door-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/door-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DOOR_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 480
+      height: 640
+      fps: 5
+    motion:
+    # threshold: 60
+      mask:
+        - 0,0,300,0,300,36,0,36
+    objects:
+      track:
+        - person
+
+  creek-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/creek-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_CREEK_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 1280
+      height: 720
+      fps: 3
+    motion:
+    # threshold: 55
+      mask:
+        - 0,0,420,0,420,30,0,30
+    objects:
+      track:
+        - person
+        - bird
+        - car
+        - bus
+        - motorcycle
+        - cat
+        - dog
+
+  willie-patrol:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/willie-patrol
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_WILLIE_PATROL_DETECT}
+          roles: [detect]
+    detect:
+      width: 1280
+      height: 720
+      fps: 3
+    motion:
+    # threshold: 45
+      mask:
+        - 0,0,420,0,420,30,0,30
+    objects:
+      track:
+        - person
+        - bird
+        - car
+        - bus
+        - motorcycle
+        - cat
+        - dog
+
+  shed-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/shed-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_SHED_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 1024
+      height: 576
+      fps: 1
+    motion:
+    # threshold: 50
+      mask:
+        - 0,0,360,0,360,29,0,29
+    objects:
+      track:
+        - person
+
+  bench-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/bench-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BENCH_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 1024
+      height: 576
+      fps: 1
+    motion:
+    # threshold: 45
+      mask:
+        - 0,0,360,0,360,29,0,29
+    objects:
+      track:
+        - person
+
+  office-cam:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/office-cam
+          roles: [record]
+        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_OFFICE_CAM_DETECT}
+          roles: [detect]
+    detect:
+      width: 1280
+      height: 720
+      fps: 3
+    motion:
+      mask:
+        - 0,0,420,0,420,30,0,30
+    objects:
+      track:
+        - person
+
+version: 0.17-0

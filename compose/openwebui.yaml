@@ -1,0 +1,25 @@
+name: openwebui
+
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - /ai/open-webui:/app/backend/data
+    env_file:
+      - /ai/open-webui/.env
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - ENABLE_OAUTH_SIGNUP=true
+      - OAUTH_PROVIDER_NAME=Google
+      - OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  proxy:
+    external: true
+    name: proxy

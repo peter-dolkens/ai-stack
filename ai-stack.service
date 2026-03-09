@@ -1,0 +1,25 @@
+[Unit]
+Description=AI Stack (Ollama, Whisper, Piper, Frigate, nginx, Open WebUI)
+Requires=docker.service
+After=docker.service local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/usr/sbin/nvidia-smi
+ExecStart=/usr/bin/docker compose -f /ai/compose/ollama.yaml up -d
+ExecStart=/usr/bin/docker compose -f /ai/compose/whisper.yaml up -d
+ExecStart=/usr/bin/docker compose -f /ai/compose/piper.yaml up -d
+ExecStart=/usr/bin/docker compose -f /ai/compose/frigate.yaml up -d
+ExecStart=/usr/bin/docker compose -f /ai/compose/openwebui.yaml up -d
+ExecStart=/usr/bin/docker compose -f /ai/compose/nginx.yaml up -d
+ExecStop=/usr/bin/docker compose -f /ai/compose/nginx.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/openwebui.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/frigate.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/piper.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/whisper.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/ollama.yaml down
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

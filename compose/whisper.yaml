@@ -1,0 +1,22 @@
+name: whisper
+
+services:
+  whisper:
+    image: rhasspy/wyoming-whisper
+    container_name: whisper
+    restart: unless-stopped
+    ports:
+      - "10300:10300"
+    volumes:
+      - /ai/models/whisper:/data
+    devices:
+      - nvidia.com/gpu=all
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    command: >
+      --uri tcp://0.0.0.0:10300
+      --model distil-large-v3
+      --language en
+      --device cuda
+      --data-dir /data
+      --download-dir /data

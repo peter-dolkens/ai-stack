@@ -1,0 +1,16 @@
+name: piper
+
+services:
+  piper:
+    image: rhasspy/wyoming-piper
+    container_name: piper
+    restart: unless-stopped
+    ports:
+      - "10200:10200"
+    volumes:
+      - /ai/models/piper:/data
+    command: >
+      --uri tcp://0.0.0.0:10200
+      --voice en_GB-alan-medium
+      --data-dir /data
+      --download-dir /data
