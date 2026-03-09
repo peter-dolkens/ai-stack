@@ -1,25 +1,28 @@
+auth:
+  enabled: true
+
 go2rtc:
   streams:
     house-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_HOUSE_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM}
     fruit-patrol:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_FRUIT_PATROL}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL}
     drive-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DRIVE_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM}
     bird-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BIRD_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM}
     door-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DOOR_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM}
     creek-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_CREEK_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM}
     willie-patrol:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_WILLIE_PATROL}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL}
     shed-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_SHED_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM}
     bench-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BENCH_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM}
     office-cam:
-      - rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_OFFICE_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM}
 
 mqtt:
   enabled: true
@@ -80,7 +83,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/house-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_HOUSE_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM_DETECT}
           roles: [detect]
     detect:
       width: 1280
@@ -109,7 +112,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/fruit-patrol
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_FRUIT_PATROL_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL_DETECT}
           roles: [detect]
     detect:
       width: 1280
@@ -134,7 +137,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/drive-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DRIVE_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM_DETECT}
           roles: [detect]
     detect:
       width: 1024
@@ -159,7 +162,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/bird-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BIRD_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM_DETECT}
           roles: [detect]
     detect:
       width: 1280
@@ -194,7 +197,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/door-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_DOOR_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM_DETECT}
           roles: [detect]
     detect:
       width: 480
@@ -213,7 +216,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/creek-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_CREEK_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM_DETECT}
           roles: [detect]
     detect:
       width: 1280
@@ -238,7 +241,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/willie-patrol
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_WILLIE_PATROL_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL_DETECT}
           roles: [detect]
     detect:
       width: 1280
@@ -263,7 +266,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/shed-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_SHED_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM_DETECT}
           roles: [detect]
     detect:
       width: 1024
@@ -282,7 +285,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/bench-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_BENCH_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM_DETECT}
           roles: [detect]
     detect:
       width: 1024
@@ -301,7 +304,7 @@ cameras:
       inputs:
         - path: rtsp://127.0.0.1:8554/office-cam
           roles: [record]
-        - path: rtsp://{NVR_HOSTNAME}:7447/{NVR_TOKEN_OFFICE_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM_DETECT}
           roles: [detect]
     detect:
       width: 1280
