@@ -4,31 +4,41 @@ auth:
 go2rtc:
   streams:
     house-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM_MEDIUM}
     fruit-patrol:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL_MEDIUM}
     drive-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM_MEDIUM}
     bird-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM_MEDIUM}
     door-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM_MEDIUM}
     creek-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM_MEDIUM}
     willie-patrol:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL_MEDIUM}
     shed-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM_MEDIUM}
     bench-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM_MEDIUM}
     office-cam:
-      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM_HIGH}
+      - rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM_MEDIUM}
 
 mqtt:
   enabled: true
-  host: "{FRIGATE_MQTT_HOSTNAME}"
-  user: "{FRIGATE_MQTT_USERNAME}"
-  password: "{FRIGATE_MQTT_PASSWORD}"
+  host: '{FRIGATE_MQTT_HOSTNAME}'
+  user: '{FRIGATE_MQTT_USERNAME}'
+  password: '{FRIGATE_MQTT_PASSWORD}'
 
 database:
   path: /media/frigate/frigate.db
@@ -50,10 +60,17 @@ detect:
   enabled: true
 
 ffmpeg:
-  global_args: -hide_banner -loglevel warning -threads 2 -init_hw_device cuda=gpu:0
+  global_args: -hide_banner
+    -loglevel warning
+    -threads 2
+    -init_hw_device cuda=gpu:0
   hwaccel_args: -hwaccel cuda
   output_args:
-    record: -f segment -segment_time 10 -segment_format mp4 -reset_timestamps 1 -strftime 1 -c copy
+    record: -f segment
+      -segment_time 10
+      -segment_format mp4
+      -reset_timestamps 1 
+      -strftime 1 -c copy
 
 
 record:
@@ -69,9 +86,11 @@ record:
     retain:
       days: 7
   continuous:
-    days: 0.5
+    days: 5
   motion:
     days: 7
+  preview:
+    quality: very_high
 snapshots:
   enabled: true
   retain:
@@ -81,9 +100,9 @@ cameras:
   house-cam:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/house-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_HOUSE_CAM_MEDIUM}
           roles: [detect]
     detect:
       width: 1280
@@ -110,9 +129,9 @@ cameras:
   fruit-patrol:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/fruit-patrol
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_FRUIT_PATROL_MEDIUM}
           roles: [detect]
     detect:
       width: 1280
@@ -135,9 +154,9 @@ cameras:
   drive-cam:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/drive-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DRIVE_CAM_MEDIUM}
           roles: [detect]
     detect:
       width: 1024
@@ -160,9 +179,9 @@ cameras:
   bird-cam:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/bird-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BIRD_CAM_MEDIUM}
           roles: [detect]
     detect:
       width: 1280
@@ -193,11 +212,13 @@ cameras:
           min_area: 1500
 
   door-cam:
+    ui:
+      dashboard: false
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/door-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_DOOR_CAM_MEDIUM}
           roles: [detect]
     detect:
       width: 480
@@ -214,9 +235,9 @@ cameras:
   creek-cam:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/creek-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_CREEK_CAM_MEDIUM}
           roles: [detect]
     detect:
       width: 1280
@@ -239,9 +260,9 @@ cameras:
   willie-patrol:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/willie-patrol
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_WILLIE_PATROL_MEDIUM}
           roles: [detect]
     detect:
       width: 1280
@@ -264,9 +285,9 @@ cameras:
   shed-cam:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/shed-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_SHED_CAM_MEDIUM}
           roles: [detect]
     detect:
       width: 1024
@@ -283,9 +304,9 @@ cameras:
   bench-cam:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/bench-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_BENCH_CAM_MEDIUM}
           roles: [detect]
     detect:
       width: 1024
@@ -300,13 +321,16 @@ cameras:
         - person
 
   office-cam:
+    ui:
+      dashboard: false
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/office-cam
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM_HIGH}
           roles: [record]
-        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM_DETECT}
+        - path: rtsp://{FRIGATE_NVR_HOSTNAME}:7447/{FRIGATE_NVR_TOKEN_OFFICE_CAM_MEDIUM}
           roles: [detect]
     detect:
+      enabled: false
       width: 1280
       height: 720
       fps: 3

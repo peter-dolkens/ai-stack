@@ -32,12 +32,12 @@ RUN PKG_CONFIG_PATH=/opt/x264/lib/pkgconfig ./configure \
         --enable-protocol=rtsp,rtp,tcp,udp,file,pipe,data,https,http,crypto,tls \
         --enable-demuxer=rtsp,rtp,h264,aac,mp4,mov,mpegts,segment \
         --enable-muxer=segment,mp4,mpegts,rtp,rtsp,null \
-        --enable-decoder=h264,hevc,aac,mp3,pcm_alaw,pcm_mulaw \
+        --enable-decoder=h264,hevc,av1,aac,mp3,pcm_alaw,pcm_mulaw \
         --enable-libx264 \
         --enable-encoder=h264_nvenc,hevc_nvenc,aac,libx264 \
         --extra-cflags="-I/opt/x264/include" \
         --extra-ldflags="-L/opt/x264/lib" \
-        --enable-hwaccel=h264_nvdec,hevc_nvdec \
+        --enable-hwaccel=h264_nvdec,hevc_nvdec,av1_nvdec \
         --enable-filter=scale,format,fps,setpts,aresample,anull,null \
         --disable-doc \
         --disable-debug \
