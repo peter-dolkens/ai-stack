@@ -86,7 +86,7 @@ record:
     retain:
       days: 7
   continuous:
-    days: 5
+    days: 2
   motion:
     days: 7
   preview:
@@ -109,7 +109,8 @@ cameras:
       height: 720
       fps: 5
     motion:
-    # threshold: 50
+      threshold: 60
+      contour_area: 50
       mask:
         - 0,0,420,0,420,30,0,30
     objects:
@@ -138,7 +139,7 @@ cameras:
       height: 720
       fps: 3
     motion:
-    # threshold: 50
+      threshold: 50
       mask:
         - 0,0,420,0,420,30,0,30
     objects:
@@ -163,7 +164,7 @@ cameras:
       height: 576
       fps: 3
     motion:
-    # threshold: 50
+      threshold: 50
       mask:
         - 0,0,360,0,360,29,0,29
     objects:
@@ -225,7 +226,7 @@ cameras:
       height: 640
       fps: 5
     motion:
-    # threshold: 60
+      threshold: 60
       mask:
         - 0,0,300,0,300,36,0,36
     objects:
@@ -244,7 +245,7 @@ cameras:
       height: 720
       fps: 3
     motion:
-    # threshold: 55
+      threshold: 55
       mask:
         - 0,0,420,0,420,30,0,30
     objects:
@@ -269,7 +270,7 @@ cameras:
       height: 720
       fps: 3
     motion:
-    # threshold: 45
+      threshold: 45
       mask:
         - 0,0,420,0,420,30,0,30
     objects:
@@ -294,7 +295,7 @@ cameras:
       height: 576
       fps: 1
     motion:
-    # threshold: 50
+      threshold: 50
       mask:
         - 0,0,360,0,360,29,0,29
     objects:
@@ -313,7 +314,7 @@ cameras:
       height: 576
       fps: 1
     motion:
-    # threshold: 45
+      threshold: 45
       mask:
         - 0,0,360,0,360,29,0,29
     objects:

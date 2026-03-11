@@ -65,6 +65,20 @@ Startup: `ai-stack.service` → `/ai/ai-stack.service` (symlinked, SELinux conte
 - **DB**: `/media/frigate/frigate.db` (persisted in `/ai/frigate/media/`)
 - **go2rtc**: H.264 passthrough for live view — no transcoding needed for UniFi cameras
 
+### Stream Quality Strategy
+
+Each camera uses **two UniFi Protect RTSP streams**:
+- `HIGH` stream → `record` role (full native resolution from UniFi)
+- `MEDIUM` stream → `detect` role (lower-res sub-stream; saves GPU/CPU on inference)
+
+**Recording**: `output_args.record` uses `-c copy` — stream is copied directly with no re-encoding. This preserves the original UniFi Protect H.264 quality and avoids any encode overhead. NVENC is available but not used for recordings.
+
+**Detection**: MEDIUM sub-stream resolution per camera (set explicitly under `detect: width/height`) — sized to match actual sub-stream output from UniFi Protect, not upscaled.
+
+**Preview**: `quality: very_high` — Frigate-generated preview clips use the highest quality setting.
+
+**Live view**: go2rtc serves the HIGH stream directly via H.264 passthrough — no server-side transcoding. UniFi cameras must be set to **Standard** encoding (H.264) — not Enhanced (H.265) or Advanced (AV1) — so browsers can decode the stream natively without Frigate needing to transcode.
+
 ### Camera FPS
 
 | FPS | Cameras |
