@@ -86,7 +86,7 @@ record:
     retain:
       days: 7
   continuous:
-    days: 2
+    days: 1
   motion:
     days: 7
   preview:
