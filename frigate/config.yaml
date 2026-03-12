@@ -189,12 +189,12 @@ cameras:
       height: 720
       fps: 3
     motion:
-      threshold: 50
-      contour_area: 100
+      # threshold: 50
+      # contour_area: 10
       improve_contrast: true
       mask:
         - 0,0,420,0,420,30,0,30
-        - 0,0,1280,0,1280,380,0,380
+#        - 0,0,1280,0,1280,50,0,50
     objects:
       track:
         - person

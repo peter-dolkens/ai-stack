@@ -56,6 +56,23 @@ Startup: `ai-stack.service` → `/ai/ai-stack.service` (symlinked, SELinux conte
 
 ---
 
+## Vendored Dependencies
+
+Third-party repos that are patched for this stack live under `vendor/` as git submodules.
+
+| Submodule | Fork | Upstream |
+|-----------|------|----------|
+| `vendor/frigate` | `git@github.com:peter-dolkens/frigate.git` | `git@github.com:blakeblackshear/frigate.git` |
+
+The fork's `upstream` remote points to the original repo. To sync upstream changes:
+```bash
+cd vendor/frigate
+git fetch upstream
+git merge upstream/main
+```
+
+---
+
 ## Frigate Configuration
 
 - **Model**: rfdetr-Nano ONNX (`/ai/models/frigate/rfdetr-Nano.onnx`, 108MB)

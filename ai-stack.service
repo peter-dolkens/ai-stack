@@ -14,7 +14,10 @@ ExecStart=/usr/bin/docker compose -f /ai/compose/frigate.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/openwebui.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/nginx.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/monitoring.yaml up -d
+# Orchestrator is still in development — uncomment when ready:
+#ExecStart=/usr/bin/docker compose -f /ai/compose/orchestrator.yaml up -d
 ExecStop=/usr/bin/docker compose -f /ai/compose/monitoring.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/orchestrator.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/nginx.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/openwebui.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/frigate.yaml down
