@@ -1,0 +1,662 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "datasource",
+      "id": "frser-sqlite-datasource",
+      "name": "SQLite",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "templating": {
+    "list": [
+      {
+        "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+        "definition": "SELECT DISTINCT u.name as __text, u.name as __value FROM user u JOIN chat_message cm ON cm.user_id = u.id WHERE cm.role = 'assistant' ORDER BY u.name",
+        "hide": 0,
+        "includeAll": true,
+        "label": "User",
+        "multi": true,
+        "name": "user_name",
+        "options": [],
+        "query": "SELECT DISTINCT u.name as __text, u.name as __value FROM user u JOIN chat_message cm ON cm.user_id = u.id WHERE cm.role = 'assistant' ORDER BY u.name",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query",
+        "current": { "text": "All", "value": "$__all" },
+        "allValue": null
+      },
+      {
+        "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+        "definition": "SELECT DISTINCT model_id as __text, model_id as __value FROM chat_message WHERE role = 'assistant' AND model_id IS NOT NULL ORDER BY model_id",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Model",
+        "multi": true,
+        "name": "model_id",
+        "options": [],
+        "query": "SELECT DISTINCT model_id as __text, model_id as __value FROM chat_message WHERE role = 'assistant' AND model_id IS NOT NULL ORDER BY model_id",
+        "refresh": 2,
+        "sort": 1,
+        "type": "query",
+        "current": { "text": "All", "value": "$__all" },
+        "allValue": null
+      }
+    ]
+  },
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Total Users",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT COUNT(*) as value FROM user",
+          "queryType": "table",
+          "rawQueryText": "SELECT COUNT(*) as value FROM user",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 2,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Total Chats",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT COUNT(*) as value FROM chat WHERE archived = 0",
+          "queryType": "table",
+          "rawQueryText": "SELECT COUNT(*) as value FROM chat WHERE archived = 0",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 3,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Total AI Messages",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT COUNT(*) as value FROM chat_message WHERE role = 'assistant'",
+          "queryType": "table",
+          "rawQueryText": "SELECT COUNT(*) as value FROM chat_message WHERE role = 'assistant'",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "id": 4,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Active Users (30d)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT COUNT(DISTINCT user_id) as value FROM chat WHERE created_at >= strftime('%s', 'now', '-30 days')",
+          "queryType": "table",
+          "rawQueryText": "SELECT COUNT(DISTINCT user_id) as value FROM chat WHERE created_at >= strftime('%s', 'now', '-30 days')",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "yellow", "value": null }] },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "id": 5,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Chats (30d)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT COUNT(*) as value FROM chat WHERE created_at >= strftime('%s', 'now', '-30 days')",
+          "queryType": "table",
+          "rawQueryText": "SELECT COUNT(*) as value FROM chat WHERE created_at >= strftime('%s', 'now', '-30 days')",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 101,
+      "title": "Activity",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 60, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 10,
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "title": "Chats per Day (90d)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT (created_at / 86400 * 86400) as time, COUNT(*) as \"Chats\" FROM chat WHERE created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400 ORDER BY time",
+          "queryType": "time series",
+          "rawQueryText": "SELECT (created_at / 86400 * 86400) as time, COUNT(*) as \"Chats\" FROM chat WHERE created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400 ORDER BY time",
+          "refId": "A",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 60, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 11,
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "title": "AI Messages per Day (90d)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT (created_at / 86400 * 86400) as time, COUNT(*) as \"Messages\" FROM chat_message WHERE role = 'assistant' AND created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400 ORDER BY time",
+          "queryType": "time series",
+          "rawQueryText": "SELECT (created_at / 86400 * 86400) as time, COUNT(*) as \"Messages\" FROM chat_message WHERE role = 'assistant' AND created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400 ORDER BY time",
+          "refId": "A",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 102,
+      "title": "Models",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
+      "id": 20,
+      "options": { "displayLabels": ["percent"], "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value"] }, "pieType": "pie", "tooltip": { "mode": "single", "sort": "none" } },
+      "title": "Model Usage by Messages (All Time)",
+      "type": "piechart",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT model_id as \"Model\", COUNT(*) as \"Messages\" FROM chat_message WHERE role = 'assistant' AND model_id IS NOT NULL AND model_id != '' GROUP BY model_id ORDER BY COUNT(*) DESC",
+          "queryType": "table",
+          "rawQueryText": "SELECT model_id as \"Model\", COUNT(*) as \"Messages\" FROM chat_message WHERE role = 'assistant' AND model_id IS NOT NULL AND model_id != '' GROUP BY model_id ORDER BY COUNT(*) DESC",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisBorderShow": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "fillOpacity": 80, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "lineWidth": 1, "scaleDistribution": { "type": "linear" }, "thresholdsStyle": { "mode": "off" } },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 15 },
+      "id": 21,
+      "options": { "barRadius": 0.05, "barWidth": 0.7, "fullHighlight": false, "groupWidth": 0.7, "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false }, "orientation": "horizontal", "showValue": "always", "stacking": "none", "tooltip": { "mode": "single", "sort": "none" }, "xTickLabelRotation": 0, "xTickLabelSpacing": 200 },
+      "title": "Top Models (30d)",
+      "type": "barchart",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT model_id as \"Model\", COUNT(*) as \"Messages\" FROM chat_message WHERE role = 'assistant' AND model_id IS NOT NULL AND model_id != '' AND created_at >= strftime('%s', 'now', '-30 days') GROUP BY model_id ORDER BY COUNT(*) DESC LIMIT 10",
+          "queryType": "table",
+          "rawQueryText": "SELECT model_id as \"Model\", COUNT(*) as \"Messages\" FROM chat_message WHERE role = 'assistant' AND model_id IS NOT NULL AND model_id != '' AND created_at >= strftime('%s', 'now', '-30 days') GROUP BY model_id ORDER BY COUNT(*) DESC LIMIT 10",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 103,
+      "title": "Users",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Last Active" }, "properties": [{ "id": "unit", "value": "dateTimeFromNow" }] },
+          { "matcher": { "id": "byName", "options": "Registered" }, "properties": [{ "id": "unit", "value": "dateTimeFromNow" }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "id": 30,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Last Active" }] },
+      "title": "User Activity",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT u.name as \"Name\", u.email as \"Email\", u.role as \"Role\", u.last_active_at * 1000 as \"Last Active\", u.created_at * 1000 as \"Registered\", (SELECT COUNT(*) FROM chat c WHERE c.user_id = u.id AND c.archived = 0) as \"Chats\", (SELECT COUNT(*) FROM chat_message cm WHERE cm.user_id = u.id AND cm.role = 'assistant') as \"AI Messages\" FROM user u ORDER BY u.last_active_at DESC",
+          "queryType": "table",
+          "rawQueryText": "SELECT u.name as \"Name\", u.email as \"Email\", u.role as \"Role\", u.last_active_at * 1000 as \"Last Active\", u.created_at * 1000 as \"Registered\", (SELECT COUNT(*) FROM chat c WHERE c.user_id = u.id AND c.archived = 0) as \"Chats\", (SELECT COUNT(*) FROM chat_message cm WHERE cm.user_id = u.id AND cm.role = 'assistant') as \"AI Messages\" FROM user u ORDER BY u.last_active_at DESC",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 105,
+      "title": "Tokens",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 33 },
+      "id": 40,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Total Input Tokens",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT SUM(json_extract(usage, '$.prompt_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null'",
+          "queryType": "table",
+          "rawQueryText": "SELECT SUM(json_extract(usage, '$.prompt_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null'",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 33 },
+      "id": 41,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Total Output Tokens",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT SUM(json_extract(usage, '$.completion_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null'",
+          "queryType": "table",
+          "rawQueryText": "SELECT SUM(json_extract(usage, '$.completion_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null'",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 33 },
+      "id": 42,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Total Tokens (All Time)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT SUM(json_extract(usage, '$.total_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null'",
+          "queryType": "table",
+          "rawQueryText": "SELECT SUM(json_extract(usage, '$.total_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null'",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 33 },
+      "id": 43,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+      "title": "Total Tokens (30d)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT SUM(json_extract(usage, '$.total_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND created_at >= strftime('%s', 'now', '-30 days')",
+          "queryType": "table",
+          "rawQueryText": "SELECT SUM(json_extract(usage, '$.total_tokens')) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND created_at >= strftime('%s', 'now', '-30 days')",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisBorderShow": false, "axisColorMode": "text", "axisLabel": "tokens", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 60, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "normal" }, "thresholdsStyle": { "mode": "off" } },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 37 },
+      "id": 44,
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "title": "Daily Tokens (90d)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT (created_at / 86400 * 86400) as time, SUM(json_extract(usage, '$.prompt_tokens')) as \"Input\", SUM(json_extract(usage, '$.completion_tokens')) as \"Output\" FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400 ORDER BY time",
+          "queryType": "time series",
+          "rawQueryText": "SELECT (created_at / 86400 * 86400) as time, SUM(json_extract(usage, '$.prompt_tokens')) as \"Input\", SUM(json_extract(usage, '$.completion_tokens')) as \"Output\" FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400 ORDER BY time",
+          "refId": "A",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisBorderShow": false, "axisColorMode": "text", "axisLabel": "tokens/s", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "lines", "fillOpacity": 20, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "auto", "spanNulls": true, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 37 },
+      "id": 45,
+      "options": { "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Daily Avg Generation Speed (tokens/s)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT (created_at / 86400 * 86400) as time, model_id as metric, AVG(CASE WHEN json_extract(usage, '$.eval_count') > 0 AND json_extract(usage, '$.eval_duration') > 0 THEN CAST(json_extract(usage, '$.eval_count') AS REAL) / json_extract(usage, '$.eval_duration') * 1e9 ELSE NULL END) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND model_id IS NOT NULL AND created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400, model_id ORDER BY time",
+          "queryType": "time series",
+          "rawQueryText": "SELECT (created_at / 86400 * 86400) as time, model_id as metric, AVG(CASE WHEN json_extract(usage, '$.eval_count') > 0 AND json_extract(usage, '$.eval_duration') > 0 THEN CAST(json_extract(usage, '$.eval_count') AS REAL) / json_extract(usage, '$.eval_duration') * 1e9 ELSE NULL END) as value FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND model_id IS NOT NULL AND created_at >= strftime('%s', 'now', '-90 days') GROUP BY created_at / 86400, model_id ORDER BY time",
+          "refId": "A",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Avg Gen Speed (tok/s)" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 1 }] },
+          { "matcher": { "id": "byName", "options": "Avg Prompt Speed (tok/s)" }, "properties": [{ "id": "unit", "value": "short" }, { "id": "decimals", "value": 0 }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 45 },
+      "id": 46,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Output Tokens" }] },
+      "title": "Per-Model Token Stats",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT model_id as \"Model\", COUNT(*) as \"Responses\", SUM(json_extract(usage, '$.prompt_tokens')) as \"Input Tokens\", SUM(json_extract(usage, '$.completion_tokens')) as \"Output Tokens\", SUM(json_extract(usage, '$.total_tokens')) as \"Total Tokens\", ROUND(AVG(CASE WHEN json_extract(usage, '$.eval_count') > 0 AND json_extract(usage, '$.eval_duration') > 0 THEN CAST(json_extract(usage, '$.eval_count') AS REAL) / json_extract(usage, '$.eval_duration') * 1e9 ELSE NULL END), 1) as \"Avg Gen Speed (tok/s)\", ROUND(AVG(CASE WHEN json_extract(usage, '$.prompt_eval_count') > 0 AND json_extract(usage, '$.prompt_eval_duration') > 0 THEN CAST(json_extract(usage, '$.prompt_eval_count') AS REAL) / json_extract(usage, '$.prompt_eval_duration') * 1e9 ELSE NULL END), 0) as \"Avg Prompt Speed (tok/s)\", ROUND(AVG(CAST(json_extract(usage, '$.total_duration') AS REAL) / 1e9), 1) as \"Avg Total Duration (s)\" FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND model_id IS NOT NULL GROUP BY model_id ORDER BY SUM(json_extract(usage, '$.completion_tokens')) DESC",
+          "queryType": "table",
+          "rawQueryText": "SELECT model_id as \"Model\", COUNT(*) as \"Responses\", SUM(json_extract(usage, '$.prompt_tokens')) as \"Input Tokens\", SUM(json_extract(usage, '$.completion_tokens')) as \"Output Tokens\", SUM(json_extract(usage, '$.total_tokens')) as \"Total Tokens\", ROUND(AVG(CASE WHEN json_extract(usage, '$.eval_count') > 0 AND json_extract(usage, '$.eval_duration') > 0 THEN CAST(json_extract(usage, '$.eval_count') AS REAL) / json_extract(usage, '$.eval_duration') * 1e9 ELSE NULL END), 1) as \"Avg Gen Speed (tok/s)\", ROUND(AVG(CASE WHEN json_extract(usage, '$.prompt_eval_count') > 0 AND json_extract(usage, '$.prompt_eval_duration') > 0 THEN CAST(json_extract(usage, '$.prompt_eval_count') AS REAL) / json_extract(usage, '$.prompt_eval_duration') * 1e9 ELSE NULL END), 0) as \"Avg Prompt Speed (tok/s)\", ROUND(AVG(CAST(json_extract(usage, '$.total_duration') AS REAL) / 1e9), 1) as \"Avg Total Duration (s)\" FROM chat_message WHERE role = 'assistant' AND usage IS NOT NULL AND usage != 'null' AND model_id IS NOT NULL GROUP BY model_id ORDER BY SUM(json_extract(usage, '$.completion_tokens')) DESC",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 53 },
+      "id": 106,
+      "title": "Per User / Model",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Avg Gen Speed (tok/s)" }, "properties": [{ "id": "decimals", "value": 1 }] },
+          { "matcher": { "id": "byName", "options": "Avg Total Duration (s)" }, "properties": [{ "id": "decimals", "value": 1 }] }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 54 },
+      "id": 50,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Output Tokens" }] },
+      "title": "Per User + Model Token Stats",
+      "description": "Filtered by User and Model dropdowns above",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT u.name as \"User\", cm.model_id as \"Model\", COUNT(*) as \"Responses\", SUM(json_extract(cm.usage, '$.prompt_tokens')) as \"Input Tokens\", SUM(json_extract(cm.usage, '$.completion_tokens')) as \"Output Tokens\", SUM(json_extract(cm.usage, '$.total_tokens')) as \"Total Tokens\", ROUND(AVG(CASE WHEN json_extract(cm.usage, '$.eval_count') > 0 AND json_extract(cm.usage, '$.eval_duration') > 0 THEN CAST(json_extract(cm.usage, '$.eval_count') AS REAL) / json_extract(cm.usage, '$.eval_duration') * 1e9 ELSE NULL END), 1) as \"Avg Gen Speed (tok/s)\", ROUND(AVG(CAST(json_extract(cm.usage, '$.total_duration') AS REAL) / 1e9), 1) as \"Avg Total Duration (s)\" FROM chat_message cm JOIN user u ON cm.user_id = u.id WHERE cm.role = 'assistant' AND cm.usage IS NOT NULL AND cm.usage != 'null' AND cm.model_id IS NOT NULL AND u.name IN (${user_name:singlequote}) AND cm.model_id IN (${model_id:singlequote}) GROUP BY u.name, cm.model_id ORDER BY SUM(json_extract(cm.usage, '$.completion_tokens')) DESC",
+          "queryType": "table",
+          "rawQueryText": "SELECT u.name as \"User\", cm.model_id as \"Model\", COUNT(*) as \"Responses\", SUM(json_extract(cm.usage, '$.prompt_tokens')) as \"Input Tokens\", SUM(json_extract(cm.usage, '$.completion_tokens')) as \"Output Tokens\", SUM(json_extract(cm.usage, '$.total_tokens')) as \"Total Tokens\", ROUND(AVG(CASE WHEN json_extract(cm.usage, '$.eval_count') > 0 AND json_extract(cm.usage, '$.eval_duration') > 0 THEN CAST(json_extract(cm.usage, '$.eval_count') AS REAL) / json_extract(cm.usage, '$.eval_duration') * 1e9 ELSE NULL END), 1) as \"Avg Gen Speed (tok/s)\", ROUND(AVG(CAST(json_extract(cm.usage, '$.total_duration') AS REAL) / 1e9), 1) as \"Avg Total Duration (s)\" FROM chat_message cm JOIN user u ON cm.user_id = u.id WHERE cm.role = 'assistant' AND cm.usage IS NOT NULL AND cm.usage != 'null' AND cm.model_id IS NOT NULL AND u.name IN (${user_name:singlequote}) AND cm.model_id IN (${model_id:singlequote}) GROUP BY u.name, cm.model_id ORDER BY SUM(json_extract(cm.usage, '$.completion_tokens')) DESC",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisBorderShow": false, "axisColorMode": "text", "axisLabel": "tokens", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "bars", "fillOpacity": 60, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": true, "stacking": { "group": "A", "mode": "normal" }, "thresholdsStyle": { "mode": "off" } },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 64 },
+      "id": 51,
+      "options": { "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Output Tokens per Day by User+Model",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT (cm.created_at / 86400 * 86400) as time, u.name || ' / ' || cm.model_id as metric, SUM(json_extract(cm.usage, '$.completion_tokens')) as value FROM chat_message cm JOIN user u ON cm.user_id = u.id WHERE cm.role = 'assistant' AND cm.usage IS NOT NULL AND cm.usage != 'null' AND cm.model_id IS NOT NULL AND u.name IN (${user_name:singlequote}) AND cm.model_id IN (${model_id:singlequote}) AND cm.created_at >= strftime('%s', 'now', '-90 days') GROUP BY cm.created_at / 86400, u.name, cm.model_id ORDER BY time",
+          "queryType": "time series",
+          "rawQueryText": "SELECT (cm.created_at / 86400 * 86400) as time, u.name || ' / ' || cm.model_id as metric, SUM(json_extract(cm.usage, '$.completion_tokens')) as value FROM chat_message cm JOIN user u ON cm.user_id = u.id WHERE cm.role = 'assistant' AND cm.usage IS NOT NULL AND cm.usage != 'null' AND cm.model_id IS NOT NULL AND u.name IN (${user_name:singlequote}) AND cm.model_id IN (${model_id:singlequote}) AND cm.created_at >= strftime('%s', 'now', '-90 days') GROUP BY cm.created_at / 86400, u.name, cm.model_id ORDER BY time",
+          "refId": "A",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisBorderShow": false, "axisColorMode": "text", "axisLabel": "tokens/s", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "lines", "fillOpacity": 20, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "insertNulls": false, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "auto", "spanNulls": true, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 64 },
+      "id": 52,
+      "options": { "legend": { "calcs": ["mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "title": "Generation Speed per Day by Model",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT (cm.created_at / 86400 * 86400) as time, cm.model_id as metric, AVG(CASE WHEN json_extract(cm.usage, '$.eval_count') > 0 AND json_extract(cm.usage, '$.eval_duration') > 0 THEN CAST(json_extract(cm.usage, '$.eval_count') AS REAL) / json_extract(cm.usage, '$.eval_duration') * 1e9 ELSE NULL END) as value FROM chat_message cm JOIN user u ON cm.user_id = u.id WHERE cm.role = 'assistant' AND cm.usage IS NOT NULL AND cm.usage != 'null' AND cm.model_id IS NOT NULL AND u.name IN (${user_name:singlequote}) AND cm.model_id IN (${model_id:singlequote}) AND cm.created_at >= strftime('%s', 'now', '-90 days') GROUP BY cm.created_at / 86400, cm.model_id ORDER BY time",
+          "queryType": "time series",
+          "rawQueryText": "SELECT (cm.created_at / 86400 * 86400) as time, cm.model_id as metric, AVG(CASE WHEN json_extract(cm.usage, '$.eval_count') > 0 AND json_extract(cm.usage, '$.eval_duration') > 0 THEN CAST(json_extract(cm.usage, '$.eval_count') AS REAL) / json_extract(cm.usage, '$.eval_duration') * 1e9 ELSE NULL END) as value FROM chat_message cm JOIN user u ON cm.user_id = u.id WHERE cm.role = 'assistant' AND cm.usage IS NOT NULL AND cm.usage != 'null' AND cm.model_id IS NOT NULL AND u.name IN (${user_name:singlequote}) AND cm.model_id IN (${model_id:singlequote}) AND cm.created_at >= strftime('%s', 'now', '-90 days') GROUP BY cm.created_at / 86400, cm.model_id ORDER BY time",
+          "refId": "A",
+          "timeColumns": ["time"]
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 72 },
+      "id": 104,
+      "title": "Recent Chats",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Created" }, "properties": [{ "id": "unit", "value": "dateTimeFromNow" }] },
+          { "matcher": { "id": "byName", "options": "Updated" }, "properties": [{ "id": "unit", "value": "dateTimeFromNow" }] }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 73 },
+      "id": 31,
+      "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Updated" }] },
+      "title": "Recent Chats (Last 30)",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "frser-sqlite-datasource", "uid": "openwebui-sqlite" },
+          "queryText": "SELECT c.title as \"Title\", u.name as \"User\", c.created_at * 1000 as \"Created\", c.updated_at * 1000 as \"Updated\", (SELECT COUNT(*) FROM chat_message cm WHERE cm.chat_id = c.id AND cm.role = 'assistant') as \"Messages\", (SELECT cm2.model_id FROM chat_message cm2 WHERE cm2.chat_id = c.id AND cm2.role = 'assistant' ORDER BY cm2.created_at DESC LIMIT 1) as \"Last Model\" FROM chat c JOIN user u ON c.user_id = u.id WHERE c.archived = 0 ORDER BY c.updated_at DESC LIMIT 30",
+          "queryType": "table",
+          "rawQueryText": "SELECT c.title as \"Title\", u.name as \"User\", c.created_at * 1000 as \"Created\", c.updated_at * 1000 as \"Updated\", (SELECT COUNT(*) FROM chat_message cm WHERE cm.chat_id = c.id AND cm.role = 'assistant') as \"Messages\", (SELECT cm2.model_id FROM chat_message cm2 WHERE cm2.chat_id = c.id AND cm2.role = 'assistant' ORDER BY cm2.created_at DESC LIMIT 1) as \"Last Model\" FROM chat c JOIN user u ON c.user_id = u.id WHERE c.archived = 0 ORDER BY c.updated_at DESC LIMIT 30",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ]
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 38,
+  "tags": ["openwebui", "ai"],
+  "time": { "from": "now-30d", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "OpenWebUI Analytics",
+  "uid": "openwebui-analytics",
+  "version": 1
+}

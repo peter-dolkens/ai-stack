@@ -26,8 +26,11 @@ services:
     volumes:
       - /ai/grafana/data:/var/lib/grafana
       - /ai/grafana/provisioning:/etc/grafana/provisioning:ro
+      - /ai/open-webui/webui.db:/var/lib/grafana/openwebui.db:ro
     env_file:
       - /ai/monitoring/.env
+    environment:
+      - GF_INSTALL_PLUGINS=frser-sqlite-datasource
     networks:
       - monitoring
       - proxy
