@@ -1,0 +1,215 @@
+{
+  "uid": "wyoming",
+  "title": "Wyoming Voice Services",
+  "tags": ["wyoming", "whisper", "piper", "ai"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "refresh": "30s",
+  "time": { "from": "now-3h", "to": "now" },
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Whisper STT",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }
+    },
+    {
+      "id": 2,
+      "title": "Whisper Status",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "wyoming_whisper_up", "legendFormat": "whisper", "refId": "A" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": {
+              "0": { "text": "DOWN", "color": "red" },
+              "1": { "text": "UP", "color": "green" }
+            }}
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Whisper Model",
+      "type": "stat",
+      "gridPos": { "x": 4, "y": 1, "w": 5, "h": 4 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "wyoming_whisper_info", "legendFormat": "{{model}} ({{name}} v{{version}})", "refId": "A" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Requests (since restart)",
+      "type": "stat",
+      "gridPos": { "x": 9, "y": 1, "w": 4, "h": 4 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "wyoming_whisper_requests_total", "legendFormat": "requests", "refId": "A" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Audio Transcribed (since restart)",
+      "type": "stat",
+      "gridPos": { "x": 13, "y": 1, "w": 5, "h": 4 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "wyoming_whisper_audio_seconds_total", "legendFormat": "audio", "refId": "A" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Whisper Request Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(wyoming_whisper_requests_total[5m]) * 60",
+          "legendFormat": "requests / min",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqpm",
+          "custom": { "lineWidth": 2, "fillOpacity": 15 },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Audio Duration Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 8 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(wyoming_whisper_audio_seconds_total[5m]) * 60",
+          "legendFormat": "audio seconds / min",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "tooltip": { "mode": "single" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "lineWidth": 2, "fillOpacity": 15 },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "color": { "fixedColor": "purple", "mode": "fixed" }
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Piper TTS",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": { "x": 0, "y": 13, "w": 24, "h": 1 }
+    },
+    {
+      "id": 11,
+      "title": "Piper Status",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 14, "w": 4, "h": 4 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "wyoming_piper_up", "legendFormat": "piper", "refId": "A" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": {
+              "0": { "text": "DOWN", "color": "red" },
+              "1": { "text": "UP", "color": "green" }
+            }}
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Piper Version & Voice",
+      "type": "stat",
+      "gridPos": { "x": 4, "y": 14, "w": 20, "h": 4 },
+      "datasource": "Prometheus",
+      "targets": [
+        { "expr": "wyoming_piper_info", "legendFormat": "{{name}} v{{version}} — {{voices}}", "refId": "A" }
+      ],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "colorMode": "none",
+        "graphMode": "none",
+        "textMode": "name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] }
+        }
+      }
+    }
+  ]
+}

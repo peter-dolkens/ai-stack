@@ -9,6 +9,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
     volumes:
       - /ai/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /ai/prometheus/data:/prometheus
@@ -102,6 +103,26 @@ services:
     networks:
       - monitoring
       - proxy
+
+  whisper_exporter:
+    image: whisper-exporter:local
+    container_name: whisper_exporter
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - monitoring
+
+  piper_exporter:
+    image: piper-exporter:local
+    container_name: piper_exporter
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - monitoring
 
 networks:
   monitoring:
