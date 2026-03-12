@@ -6,6 +6,7 @@
 #   2-mount-<hostname>.sh   — applies fstab entries and mounts
 #   3-configure-secrets.sh  — populate .env files from .env.template files
 #   4-configure-host.sh     — Docker, NVIDIA, SELinux, systemd prerequisites
+#   build-images.sh         — build all custom local Docker images under build/
 #   → starts ai-stack.service
 #
 # Safe to re-run at any time. All steps are idempotent.
@@ -61,6 +62,11 @@ bash "${DIR}/3-configure-secrets.sh"
 header "Step 4: Host configuration"
 
 bash "${DIR}/4-configure-host.sh"
+
+# ── Step 5: Build local images ────────────────────────────────────────────────
+header "Step 5: Build local images"
+
+bash "${DIR}/build-images.sh"
 
 # ── Start the stack ───────────────────────────────────────────────────────────
 header "Starting ai-stack.service"
