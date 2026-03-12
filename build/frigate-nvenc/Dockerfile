@@ -48,6 +48,11 @@ RUN PKG_CONFIG_PATH=/opt/x264/lib/pkgconfig ./configure \
     && strip /opt/ffmpeg/bin/ffmpeg /opt/ffmpeg/bin/ffprobe
 
 # Stage 2: Frigate with the updated ffmpeg binary
+# Requires BuildKit and a named context for the vendor/frigate submodule:
+#   docker buildx build -t frigate-nvenc:local \
+#     -f build/frigate-nvenc/Dockerfile \
+#     --build-context vendor-frigate=vendor/frigate \
+#     build/frigate-nvenc/
 FROM ghcr.io/blakeblackshear/frigate:stable-tensorrt
 
 RUN mkdir -p /usr/lib/ffmpeg/8.0/bin
@@ -57,14 +62,7 @@ COPY --from=ffmpeg-builder /opt/ffmpeg/bin/ffprobe /usr/lib/ffmpeg/8.0/bin/ffpro
 ENV DEFAULT_FFMPEG_VERSION=8.0
 ENV INCLUDED_FFMPEG_VERSIONS=8.0:7.0:5.0
 
-# Patch GPU stats detection to also recognise `-hwaccel cuda` and `-hwaccel nvdec`
-# as NVIDIA args (upstream only checks for 'cuvid' or 'nvidia').
-RUN sed -i 's/"cuvid" in args or "nvidia" in args/"cuvid" in args or "nvidia" in args or "cuda" in args or "nvdec" in args/' \
-    /opt/frigate/frigate/stats/util.py
-
-# Fix Frigate 0.17 bug: asyncio.SubprocessError does not exist in Python's asyncio module.
-# This crashes the record maintainer on every cycle, preventing segments from being moved
-# from cache to disk (recordings appear missing in the UI despite being captured).
-# subprocess is already imported as `sp` in services.py.
-RUN sed -i 's/asyncio\.SubprocessError/sp.SubprocessError/' \
-    /opt/frigate/frigate/util/services.py
+# Apply local patches from vendor/frigate (dolkens/v0.17.0-patches).
+# See that branch for commit history explaining each change.
+COPY --from=vendor-frigate frigate/stats/util.py /opt/frigate/frigate/stats/util.py
+COPY --from=vendor-frigate frigate/util/services.py /opt/frigate/frigate/util/services.py
