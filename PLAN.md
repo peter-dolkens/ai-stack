@@ -44,7 +44,7 @@ Dedicated local AI inference host. Provides voice assistant backend, camera AI, 
 | nginx | `nginx:alpine` | 80, 443 | Reverse proxy; shared `proxy` Docker network |
 | certbot | `certbot-cloudflare:local` | — | DNS-01 via Cloudflare; cron renewal at 03:17 & 15:17 |
 | prometheus | `prom/prometheus:latest` | 9090 (internal) | Metrics scraper; 30d retention; `/ai/prometheus/prometheus.yml` |
-| grafana | `grafana/grafana:latest` | 3000 (via nginx) | Dashboards at `grafana.dolkens.net`; data at `grafana_data` volume |
+| grafana | `grafana/grafana:latest` | 3000 (via nginx) | Dashboards at `grafana.dolkens.net`; `frser-sqlite-datasource` plugin; `webui.db` mounted read-only |
 | node_exporter | `prom/node-exporter:latest` | 9100 (internal) | Host system metrics (CPU, RAM, disk, network) |
 | cadvisor | `gcr.io/cadvisor/cadvisor:latest` | 8080 (internal) | Container resource metrics |
 | nvidia_gpu_exporter | `utkuozdemir/nvidia_gpu_exporter:1.3.0` | 9835 (internal) | RTX 3090 GPU metrics via nvidia-smi |
@@ -112,6 +112,55 @@ Each camera uses **two UniFi Protect RTSP streams**:
 | 1 | shed-cam, bench-cam |
 | 3 | drive-cam, bird-cam, creek-cam, fruit-patrol, willie-patrol, office-cam |
 | 5 | door-cam, house-cam |
+
+---
+
+## Monitoring / Grafana
+
+Prometheus scrapes all exporters; Grafana at `grafana.dolkens.net` / `grafana.dolkens.au`.
+
+### Prometheus Scrape Targets
+
+| Job | Target | Notes |
+|-----|--------|-------|
+| `prometheus` | `localhost:9090` | Self-scrape |
+| `node` | `node_exporter:9100` | Host system metrics |
+| `cadvisor` | `cadvisor:8080` | Container metrics |
+| `nvidia_gpu` | `nvidia_gpu_exporter:9835` | RTX 3090; restricted `--query-field-names` to exclude `[us]`/`[ms]` suffixes (driver 580+ bug) |
+| `nginx` | `nginx_exporter:9113` | Scrapes nginx stub_status on port 8080 (internal only) |
+| `frigate` | `frigate:5000/api/metrics` | Frigate native Prometheus endpoint |
+| `ollama` | `ollama_exporter:8000` | Model inventory + VRAM usage |
+| `whisper` | `whisper_exporter:9877` | Wyoming health probe + transcription count from logs |
+| `piper` | `piper_exporter:9878` | Wyoming health probe; voice/version info |
+
+### Grafana Dashboards
+
+| Dashboard | Source | Notes |
+|-----------|--------|-------|
+| Node Exporter Full | Prometheus | Host CPU, RAM, disk, network |
+| cAdvisor | Prometheus | Per-container resource usage |
+| RTX 3090 GPU | Prometheus | Utilisation, VRAM, power, temp, clocks |
+| Frigate | Prometheus | Detection counts, FPS, camera health |
+| nginx | Prometheus | Request rates, connections, upstream latency |
+| Ollama | Prometheus | Active models, VRAM per model |
+| OpenWebUI Analytics | SQLite (`webui.db`) | See below |
+
+### OpenWebUI Analytics Dashboard
+
+Reads directly from `/ai/open-webui/webui.db` (SQLite, mounted read-only into Grafana) via the `frser-sqlite-datasource` plugin (`frser-sqlite-datasource`, installed via `GF_INSTALL_PLUGINS`).
+
+**Sections:**
+- **Overview** — total users, chats, AI messages; active users and chats in last 30d
+- **Activity** — chats per day and AI messages per day (90d bar charts)
+- **Models** — all-time pie chart by model; top 10 models in last 30d bar chart
+- **Tokens** — total input/output/combined token stat tiles (all time + 30d); daily stacked token bar chart; daily avg generation speed line chart per model; per-model token stats table (responses, input/output/total tokens, avg gen speed tok/s, avg prompt speed tok/s, avg total duration)
+- **Per User / Model** — User + Model multi-select dropdowns; per-user-per-model token stats table; daily output tokens stacked bar by user+model; daily avg gen speed line by model (all filtered by dropdowns)
+- **Recent Chats** — last 30 chats with title, user, timestamps, message count, last model used
+
+**Key notes:**
+- `timeColumns` in time series queries expect **epoch seconds** (the plugin converts to ms internally — do not multiply by 1000)
+- Table columns using `dateTimeFromNow` unit expect **epoch milliseconds** (multiply source seconds by 1000)
+- Dashboard UID: `openwebui-analytics`; datasource UID: `openwebui-sqlite`
 
 ---
 
