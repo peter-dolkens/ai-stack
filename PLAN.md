@@ -47,8 +47,11 @@ Dedicated local AI inference host. Provides voice assistant backend, camera AI, 
 | grafana | `grafana/grafana:latest` | 3000 (via nginx) | Dashboards at `grafana.dolkens.net`; data at `grafana_data` volume |
 | node_exporter | `prom/node-exporter:latest` | 9100 (internal) | Host system metrics (CPU, RAM, disk, network) |
 | cadvisor | `gcr.io/cadvisor/cadvisor:latest` | 8080 (internal) | Container resource metrics |
-| nvidia_gpu_exporter | `utkuozdemir/nvidia_gpu_exporter:1.2.0` | 9835 (internal) | RTX 3090 GPU metrics via nvidia-smi |
+| nvidia_gpu_exporter | `utkuozdemir/nvidia_gpu_exporter:1.3.0` | 9835 (internal) | RTX 3090 GPU metrics via nvidia-smi |
 | nginx_exporter | `nginx/nginx-prometheus-exporter:latest` | 9113 (internal) | nginx stub_status metrics |
+| ollama_exporter | `lucabecker42/ollama-exporter:latest` | 8000 (internal) | Ollama model inventory + VRAM usage |
+| whisper_exporter | `whisper-exporter:local` | 9877 (internal) | Wyoming describe probe + log-based transcription metrics |
+| piper_exporter | `piper-exporter:local` | 9878 (internal) | Wyoming describe probe; health + version/voice info |
 
 All compose files in `/ai/compose/`, each with `name:` for independent projects.
 Shared Docker network `proxy` connects nginx, frigate, and openwebui — backends addressed by container name.
