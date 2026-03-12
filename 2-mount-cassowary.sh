@@ -35,6 +35,68 @@ fi
 echo -e "${BOLD}Drive Mount Setup — cassowary${RESET}"
 echo    "────────────────────────────────────────"
 
+# ── btrfs subvolumes on nvme1 ─────────────────────────────────────────────────
+# Format: mountpoint → "subvol=@name uid:gid"
+# Subvolumes are created on nvme1 if missing, then mounted and chowned.
+NVME1_UUID="0365efd4-03e8-4a09-a513-a203cb762246"
+
+declare -A BTRFS_SUBVOLS=(
+    ["/ai/prometheus/data"]="@prometheus 65534:65534"
+    ["/ai/grafana/data"]="@grafana 472:472"
+)
+
+header "btrfs subvolumes (nvme1)"
+
+# Temporarily mount the nvme1 root to create missing subvolumes
+BTRFS_TMP=$(mktemp -d)
+sudo mount -t btrfs -o subvolid=5 "UUID=${NVME1_UUID}" "$BTRFS_TMP" 2>/dev/null
+
+for mnt in "${!BTRFS_SUBVOLS[@]}"; do
+    read -r subvol _owner <<< "${BTRFS_SUBVOLS[$mnt]}"
+    if [[ -d "${BTRFS_TMP}/${subvol}" ]]; then
+        ok "subvolume ${subvol} exists"
+    else
+        sudo btrfs subvolume create "${BTRFS_TMP}/${subvol}" > /dev/null
+        changed "Created btrfs subvolume ${subvol}"
+    fi
+done
+
+sudo umount "$BTRFS_TMP"
+rmdir "$BTRFS_TMP"
+
+# fstab entries for btrfs subvolumes
+for mnt in "${!BTRFS_SUBVOLS[@]}"; do
+    read -r subvol _owner <<< "${BTRFS_SUBVOLS[$mnt]}"
+    entry="UUID=${NVME1_UUID}  ${mnt}  btrfs  subvol=${subvol},defaults,nofail,noatime  0  0"
+    if grep -qE "\s${mnt}\s" /etc/fstab 2>/dev/null; then
+        ok "${mnt} already in fstab"
+    else
+        echo "$entry" | sudo tee -a /etc/fstab > /dev/null
+        changed "Added fstab entry for ${mnt}"
+    fi
+done
+
+# Mount point directories, mount, and ownership
+for mnt in "${!BTRFS_SUBVOLS[@]}"; do
+    read -r _subvol owner <<< "${BTRFS_SUBVOLS[$mnt]}"
+    [[ -d "$mnt" ]] || { sudo mkdir -p "$mnt"; changed "Created $mnt"; }
+    if mountpoint -q "$mnt" 2>/dev/null; then
+        ok "$mnt already mounted"
+    else
+        if sudo mount "$mnt" 2>/dev/null; then
+            changed "Mounted $mnt"
+        else
+            fail "Failed to mount $mnt"
+        fi
+    fi
+    # Fix ownership on the mounted subvolume root
+    current_owner=$(stat -c '%u:%g' "$mnt")
+    if [[ "$current_owner" != "$owner" ]]; then
+        sudo chown "$owner" "$mnt"
+        changed "Set ownership ${owner} on $mnt"
+    fi
+done
+
 # ── fstab entries ─────────────────────────────────────────────────────────────
 # Format: UUID  mountpoint  fstype  options  dump  pass
 declare -A FSTAB_ENTRIES=(

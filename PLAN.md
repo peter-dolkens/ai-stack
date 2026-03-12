@@ -43,6 +43,12 @@ Dedicated local AI inference host. Provides voice assistant backend, camera AI, 
 | openwebui | `ghcr.io/open-webui/open-webui:main` | 8080 (via nginx) | Data at `/ai/open-webui`; Google OAuth enabled |
 | nginx | `nginx:alpine` | 80, 443 | Reverse proxy; shared `proxy` Docker network |
 | certbot | `certbot-cloudflare:local` | — | DNS-01 via Cloudflare; cron renewal at 03:17 & 15:17 |
+| prometheus | `prom/prometheus:latest` | 9090 (internal) | Metrics scraper; 30d retention; `/ai/prometheus/prometheus.yml` |
+| grafana | `grafana/grafana:latest` | 3000 (via nginx) | Dashboards at `grafana.dolkens.net`; data at `grafana_data` volume |
+| node_exporter | `prom/node-exporter:latest` | 9100 (internal) | Host system metrics (CPU, RAM, disk, network) |
+| cadvisor | `gcr.io/cadvisor/cadvisor:latest` | 8080 (internal) | Container resource metrics |
+| nvidia_gpu_exporter | `utkuozdemir/nvidia_gpu_exporter:1.2.0` | 9835 (internal) | RTX 3090 GPU metrics via nvidia-smi |
+| nginx_exporter | `nginx/nginx-prometheus-exporter:latest` | 9113 (internal) | nginx stub_status metrics |
 
 All compose files in `/ai/compose/`, each with `name:` for independent projects.
 Shared Docker network `proxy` connects nginx, frigate, and openwebui — backends addressed by container name.
@@ -128,7 +134,7 @@ Reverse proxy with automatic TLS via Let's Encrypt (Cloudflare DNS-01 challenge)
 
 - Second GPU (RTX 3080) for dedicated Frigate inference
 - Kubernetes lab (kubectl, helm, k3d, k9s)
-- Prometheus + Grafana monitoring
+- ~~Prometheus + Grafana monitoring~~ ✓ done
 - Embedding models, vector DB
 - **Dockerized AI agents** — remotely controllable task agents running in sandboxed containers
   - Each agent gets its own container with scoped filesystem, network, and tool access

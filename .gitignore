@@ -3,10 +3,19 @@ models/
 data/
 experiments/
 vector-db/
+prometheus/data/
+grafana/data/
 
 tts/voices/
 whisper/cache/
 
+# Secrets
+frigate/.env
+frigate/nvr.env
+nginx/.env
+monitoring/.env
+
 # Keep compose configs and build context
 !compose/
 !build/
+build/orchestrator/orchestrator.env
