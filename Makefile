@@ -56,9 +56,15 @@ images: build
 start: ## Start ai-stack.service
 	sudo systemctl start ai-stack.service
 
+.PHONY: up
+up: start
+
 .PHONY: stop
 stop: ## Stop ai-stack.service
 	sudo systemctl stop ai-stack.service
+
+.PHONY: down
+down: stop
 
 .PHONY: restart
 restart: ## Restart ai-stack.service
