@@ -6,6 +6,8 @@ COMPOSE_FILES := \
 	compose/whisper.yaml \
 	compose/piper.yaml \
 	compose/frigate.yaml \
+	compose/postgres.yaml \
+	compose/litellm.yaml \
 	compose/openwebui.yaml \
 	compose/nginx.yaml \
 	compose/monitoring.yaml \

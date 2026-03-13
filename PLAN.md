@@ -37,6 +37,8 @@ Dedicated local AI inference host. Provides voice assistant backend, camera AI, 
 | Container | Image | Port | Notes |
 |-----------|-------|------|-------|
 | frigate | `frigate-nvenc:local` | 5000 (via nginx) | Custom FFmpeg 8.0.1 + NVENC |
+| postgres | `postgres:16-alpine` | 5432 (internal) | Shared DB; data at `/ai/postgres/data`; `postgres` Docker network |
+| litellm | `ghcr.io/berriai/litellm:main-latest` | 4000 (via nginx) | OpenAI-compatible proxy; Ollama + cloud providers; Prometheus metrics at `/metrics` |
 | ollama | `ollama/ollama:latest` | 11434 | Models at `/ai/models/ollama` |
 | whisper | `rhasspy/wyoming-whisper` | 10300 | `distil-large-v3`, CUDA; models at `/ai/models/whisper` |
 | piper | `rhasspy/wyoming-piper` | 10200 | `en_GB-alan-medium`; voices at `/ai/models/piper` |
@@ -52,9 +54,10 @@ Dedicated local AI inference host. Provides voice assistant backend, camera AI, 
 | ollama_exporter | `lucabecker42/ollama-exporter:latest` | 8000 (internal) | Ollama model inventory + VRAM usage |
 | whisper_exporter | `whisper-exporter:local` | 9877 (internal) | Wyoming describe probe + log-based transcription metrics |
 | piper_exporter | `piper-exporter:local` | 9878 (internal) | Wyoming describe probe; health + version/voice info |
+| postgres_exporter | `prometheuscommunity/postgres-exporter:latest` | 9187 (internal) | DB sizes, connections, transaction rates, cache hit ratio |
 
 All compose files in `/ai/compose/`, each with `name:` for independent projects.
-Shared Docker network `proxy` connects nginx, frigate, and openwebui — backends addressed by container name.
+Shared Docker networks: `proxy` (nginx + all HTTP backends), `postgres` (shared DB access), `monitoring` (prometheus + exporters).
 Startup: `ai-stack.service` → `/ai/ai-stack.service` (symlinked, SELinux context set).
 
 ---
@@ -132,6 +135,8 @@ Prometheus scrapes all exporters; Grafana at `grafana.dolkens.net` / `grafana.do
 | `ollama` | `ollama_exporter:8000` | Model inventory + VRAM usage |
 | `whisper` | `whisper_exporter:9877` | Wyoming health probe + transcription count from logs |
 | `piper` | `piper_exporter:9878` | Wyoming health probe; voice/version info |
+| `litellm` | `litellm:4000/metrics` | Token counts, latency, cost, errors per model |
+| `postgres` | `postgres_exporter:9187` | DB sizes, connections, transactions, cache hit ratio |
 
 ### Grafana Dashboards
 
@@ -143,6 +148,8 @@ Prometheus scrapes all exporters; Grafana at `grafana.dolkens.net` / `grafana.do
 | Frigate | Prometheus | Detection counts, FPS, camera health |
 | nginx | Prometheus | Request rates, connections, upstream latency |
 | Ollama | Prometheus | Active models, VRAM per model |
+| LiteLLM | Prometheus | Request rate, token usage, latency (p50/p95/p99), spend by model |
+| PostgreSQL | Prometheus | Connections, transactions, cache hit ratio, DB sizes |
 | OpenWebUI Analytics | SQLite (`webui.db`) | See below |
 
 ### OpenWebUI Analytics Dashboard
@@ -172,6 +179,7 @@ Reverse proxy with automatic TLS via Let's Encrypt (Cloudflare DNS-01 challenge)
 |-------|---------|-----|
 | `frigate.dolkens.net` / `frigate.dolkens.au` | `frigate:5000` | Frigate NVR |
 | `chat.dolkens.net` / `chat.dolkens.au` | `openwebui:8080` | Open WebUI |
+| `llm.dolkens.net` / `llm.dolkens.au` | `litellm:4000` | LiteLLM proxy + admin UI (`/ui`) |
 
 - nginx, frigate, and openwebui all share the external Docker network `proxy`; nginx routes by container name
 - Config: `/ai/nginx/conf.d/*.conf` — add a new `.conf` to add a vhost; restart certbot to auto-issue cert
@@ -186,6 +194,8 @@ Reverse proxy with automatic TLS via Let's Encrypt (Cloudflare DNS-01 challenge)
 
 - `frigate/.env` — gitignored, contains `FRIGATE_MQTT_PASSWORD`
 - `nginx/.env` — gitignored, contains `CLOUDFLARE_API_TOKEN` and `CERTBOT_EMAIL`
+- `postgres/.env` — gitignored, contains `POSTGRES_PASSWORD`
+- `litellm/.env` — gitignored, contains `LITELLM_MASTER_KEY`, `DATABASE_URL`, optional cloud provider API keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`)
 - All other configs safe to commit
 
 ---

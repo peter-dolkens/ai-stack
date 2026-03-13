@@ -12,6 +12,8 @@ Provides LLM, speech-to-text, text-to-speech, and camera AI services to Home Ass
 | [whisper](compose/whisper.yaml) | Speech-to-text (Wyoming) | `<hostname>.dolkens.net:10300` |
 | [piper](compose/piper.yaml) | Text-to-speech (Wyoming) | `<hostname>.dolkens.net:10200` |
 | [frigate](compose/frigate.yaml) | Camera NVR + object detection | `frigate.dolkens.net` |
+| [postgres](compose/postgres.yaml) | Shared PostgreSQL instance | internal only |
+| [litellm](compose/litellm.yaml) | LLM proxy (Ollama + cloud providers) | `llm.dolkens.net` |
 | [openwebui](compose/openwebui.yaml) | LLM chat interface | `chat.dolkens.net` |
 | [nginx](compose/nginx.yaml) | Reverse proxy + TLS | ports 80, 443 |
 | [certbot](build/certbot/) | Let's Encrypt (Cloudflare DNS-01) | — |
@@ -49,6 +51,8 @@ Each service that requires secrets has a `.env.template` file alongside it. Run 
 | `nginx/.env` | `CLOUDFLARE_API_TOKEN`, `CERTBOT_EMAIL` |
 | `frigate/.env` | `FRIGATE_MQTT_PASSWORD` |
 | `open-webui/.env` | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
+| `postgres/.env` | `POSTGRES_PASSWORD` |
+| `litellm/.env` | `LITELLM_MASTER_KEY`, `DATABASE_URL`, optional cloud API keys |
 
 `.env` files are gitignored and never committed.
 

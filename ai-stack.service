@@ -1,5 +1,5 @@
 [Unit]
-Description=AI Stack (Ollama, Whisper, Piper, Frigate, nginx, Open WebUI, Monitoring)
+Description=AI Stack (Ollama, Whisper, Piper, Frigate, Postgres, LiteLLM, nginx, Open WebUI, Monitoring)
 Requires=docker.service
 After=docker.service local-fs.target
 
@@ -11,6 +11,8 @@ ExecStart=/usr/bin/docker compose -f /ai/compose/ollama.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/whisper.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/piper.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/frigate.yaml up -d
+ExecStart=/usr/bin/docker compose -f /ai/compose/postgres.yaml up -d
+ExecStart=/usr/bin/docker compose -f /ai/compose/litellm.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/openwebui.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/nginx.yaml up -d
 ExecStart=/usr/bin/docker compose -f /ai/compose/monitoring.yaml up -d
@@ -20,6 +22,8 @@ ExecStop=/usr/bin/docker compose -f /ai/compose/monitoring.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/orchestrator.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/nginx.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/openwebui.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/litellm.yaml down
+ExecStop=/usr/bin/docker compose -f /ai/compose/postgres.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/frigate.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/piper.yaml down
 ExecStop=/usr/bin/docker compose -f /ai/compose/whisper.yaml down
