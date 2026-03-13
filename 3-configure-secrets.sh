@@ -9,6 +9,10 @@
 # To add a new secret: add KEY= (with optional comment) to the relevant
 # .env.template file — this script will pick it up automatically.
 #
+# Auto-generated keys: add entries to AUTO_GENERATE below. When a key is empty
+# in the template, the user is prompted but can press Enter to accept the
+# auto-generated value.
+#
 # Secret detection: keys whose names contain PASSWORD, SECRET, TOKEN, or KEY
 # are treated as sensitive — input is hidden during entry.
 #
@@ -29,6 +33,20 @@ fi
 
 AI_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHANGES=0
+
+# ── Auto-generated keys ────────────────────────────────────────────────────────
+# Keys listed here are prompted but the user can press Enter to accept the
+# auto-generated value.
+declare -A AUTO_GENERATE
+AUTO_GENERATE["LITELLM_MASTER_KEY"]='printf "sk-%s" "$(openssl rand -hex 16)"'
+AUTO_GENERATE["POSTGRES_PASSWORD"]='openssl rand -hex 16'
+
+# ── Derived keys ───────────────────────────────────────────────────────────────
+# Keys listed here are computed automatically from other already-set values.
+# No prompting — the expression is eval'd and the result written to the .env file.
+declare -A DERIVE
+DERIVE["DATA_SOURCE_NAME"]='pw=$(grep "^POSTGRES_PASSWORD=" "$env_file" | cut -d= -f2-); printf "postgresql://postgres:%s@postgres:5432/postgres?sslmode=disable" "$pw"'
+DERIVE["DATABASE_URL"]='pw=$(grep "^POSTGRES_PASSWORD=" "$AI_DIR/postgres/.env" | cut -d= -f2-); printf "postgresql://postgres:%s@postgres:5432/litellm" "$pw"'
 
 echo -e "${BOLD}AI Stack Secret Configuration${RESET}"
 echo    "────────────────────────────────────────"
@@ -74,6 +92,19 @@ while IFS= read -r -d '' template <&4; do
                 continue
             fi
 
+            # Has a DERIVE expression — compute the value automatically
+            if [[ -n "${DERIVE[$key]+x}" ]]; then
+                derived_val="$(eval "${DERIVE[$key]}")"
+                if [[ -n "$derived_val" ]]; then
+                    echo "${key}=${derived_val}" >> "$env_file"
+                    info "Set ${key} (derived)"
+                    CHANGES=$((CHANGES+1))
+                    pending_comment=""
+                    continue
+                fi
+                # Derivation failed (dependency not yet set) — fall through to prompt
+            fi
+
             # Has a default value in the template — write it without prompting
             if [[ -n "$default" ]]; then
                 echo "${key}=${default}" >> "$env_file"
@@ -91,15 +122,26 @@ while IFS= read -r -d '' template <&4; do
             is_secret=false
             [[ "$key" =~ (PASSWORD|SECRET|TOKEN|KEY) ]] && is_secret=true
 
+            # Pre-generate a default value if this key has an auto-generator
+            generated=""
+            [[ -n "${AUTO_GENERATE[$key]+x}" ]] && generated="$(eval "${AUTO_GENERATE[$key]}")"
+
             value=""
-            while [[ -z "$value" ]]; do
+            if [[ -n "$generated" ]]; then
+                # Sensitive: don't display generated value; non-sensitive: show it
                 if $is_secret; then
-                    read -r -s -p "  ${key} (hidden): " value; echo
+                    read -r -s -p "  ${key} (press Enter to auto-generate, or type override, hidden): " value; echo
                 else
-                    read -r -p "  ${key}: " value
+                    read -r -p "  ${key} [${generated}]: " value
                 fi
-                [[ -z "$value" ]] && echo "  Value cannot be empty."
-            done
+                [[ -z "$value" ]] && value="$generated"
+            else
+                if $is_secret; then
+                    read -r -s -p "  ${key} (hidden, Enter to skip): " value; echo
+                else
+                    read -r -p "  ${key} (Enter to skip): " value
+                fi
+            fi
 
             echo "${key}=${value}" >> "$env_file"
             info "Set ${key}"
@@ -108,7 +150,11 @@ while IFS= read -r -d '' template <&4; do
         fi
     done 3< "$template"
 
-done 4< <(find "$AI_DIR" -name ".env.template" -print0 | sort -z)
+done 4< <({
+    # postgres must come first so DATABASE_URL in litellm/.env can be derived from it
+    [[ -f "$AI_DIR/postgres/.env.template" ]] && printf '%s\0' "$AI_DIR/postgres/.env.template"
+    find "$AI_DIR" -name ".env.template" ! -path "*/postgres/.env.template" -print0 2>/dev/null | sort -z
+})
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo
