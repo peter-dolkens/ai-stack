@@ -127,9 +127,22 @@ services:
     networks:
       - monitoring
 
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres_exporter
+    restart: unless-stopped
+    env_file:
+      - /ai/postgres/.env
+    networks:
+      - monitoring
+      - postgres
+
 networks:
   monitoring:
     name: monitoring
   proxy:
     external: true
     name: proxy
+  postgres:
+    external: true
+    name: postgres

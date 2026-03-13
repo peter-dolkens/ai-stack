@@ -43,3 +43,14 @@ scrape_configs:
   - job_name: 'piper'
     static_configs:
       - targets: ['piper_exporter:9878']
+
+  # LiteLLM proxy — token counts, latency, cost, errors per model
+  - job_name: 'litellm'
+    static_configs:
+      - targets: ['litellm:4000']
+    metrics_path: /metrics
+
+  # PostgreSQL — database sizes, connections, transaction rates, cache hit ratio
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres_exporter:9187']
