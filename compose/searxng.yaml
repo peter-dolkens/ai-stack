@@ -1,0 +1,24 @@
+name: searxng
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - /ai/searxng:/etc/searxng
+    env_file:
+      - /ai/searxng/.env
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+networks:
+  proxy:
+    external: true
+    name: proxy

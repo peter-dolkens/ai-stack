@@ -129,7 +129,7 @@
       "gridPos": { "x": 20, "y": 0, "w": 4, "h": 4 },
       "datasource": "Prometheus",
       "targets": [
-        { "expr": "sum(rate(litellm_requests_metric_total{status!=\"success\"}[5m])) or vector(0)", "legendFormat": "err/s", "refId": "A" }
+        { "expr": "sum(rate(litellm_proxy_failed_requests_metric_total[5m])) or vector(0)", "legendFormat": "err/s", "refId": "A" }
       ],
       "options": {
         "reduceOptions": { "calcs": ["lastNotNull"] },
