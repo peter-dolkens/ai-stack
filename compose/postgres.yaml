@@ -1,0 +1,17 @@
+name: postgres
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      - /ai/postgres/.env
+    volumes:
+      - /ai/postgres/data:/var/lib/postgresql/data
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    name: postgres
