@@ -13,3 +13,4 @@ services:
       - nvidia.com/gpu=all
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_KEEP_ALIVE=-1
