@@ -63,8 +63,7 @@ ffmpeg:
   global_args: -hide_banner
     -loglevel warning
     -threads 2
-    -init_hw_device cuda=gpu:0
-  hwaccel_args: -hwaccel cuda
+  hwaccel_args: preset-nvidia
   output_args:
     record: -f segment
       -segment_time 10
@@ -139,7 +138,7 @@ cameras:
       height: 720
       fps: 3
     motion:
-      threshold: 50
+      threshold: 65
       mask:
         - 0,0,420,0,420,30,0,30
     objects:
@@ -189,8 +188,7 @@ cameras:
       height: 720
       fps: 3
     motion:
-      # threshold: 50
-      # contour_area: 10
+      threshold: 55
       improve_contrast: true
       mask:
         - 0,0,420,0,420,30,0,30
@@ -245,7 +243,7 @@ cameras:
       height: 720
       fps: 3
     motion:
-      threshold: 55
+      threshold: 75
       mask:
         - 0,0,420,0,420,30,0,30
     objects:
@@ -270,7 +268,7 @@ cameras:
       height: 720
       fps: 3
     motion:
-      threshold: 45
+      threshold: 65
       mask:
         - 0,0,420,0,420,30,0,30
     objects:
@@ -295,7 +293,7 @@ cameras:
       height: 576
       fps: 1
     motion:
-      threshold: 50
+      threshold: 60
       mask:
         - 0,0,360,0,360,29,0,29
     objects:
@@ -314,7 +312,7 @@ cameras:
       height: 576
       fps: 1
     motion:
-      threshold: 45
+      threshold: 65
       mask:
         - 0,0,360,0,360,29,0,29
     objects:
