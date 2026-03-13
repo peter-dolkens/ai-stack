@@ -1,0 +1,24 @@
+name: litellm
+
+services:
+  litellm:
+    image: litellm:local
+    container_name: litellm
+    restart: unless-stopped
+    volumes:
+      - /ai/litellm/config.template.yaml:/litellm/config.template.yaml:ro
+    env_file:
+      - /ai/litellm/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - proxy
+      - postgres
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+  postgres:
+    external: true
+    name: postgres
