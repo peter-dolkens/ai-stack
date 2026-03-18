@@ -1,0 +1,38 @@
+name: n8n
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    networks:
+      - proxy
+      - postgres
+    volumes:
+      - /ai/n8n/data:/home/node/.n8n
+    env_file:
+      - /ai/n8n/.env
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=postgres
+      - N8N_HOST=n8n.dolkens.net
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.dolkens.net/
+      - N8N_EDITOR_BASE_URL=https://n8n.dolkens.net
+      - N8N_METRICS=true
+      - N8N_METRICS_INCLUDE_DEFAULT_METRICS=true
+      - N8N_METRICS_INCLUDE_WORKFLOW_ID_LABEL=true
+      - N8N_METRICS_INCLUDE_NODE_TYPE_LABEL=true
+      - N8N_METRICS_INCLUDE_API_ENDPOINTS=true
+      - N8N_METRICS_INCLUDE_API_STATUS_CODE_LABEL=true
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+  postgres:
+    external: true
+    name: postgres

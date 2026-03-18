@@ -19,6 +19,8 @@ postgres/.env
 postgres/data/
 open-webui/.env
 searxng/.env
+n8n/.env
+n8n/data/
 
 # Open WebUI data
 open-webui/vector_db/

@@ -54,3 +54,9 @@ scrape_configs:
   - job_name: 'postgres'
     static_configs:
       - targets: ['postgres_exporter:9187']
+
+  # n8n workflow automation — active workflows, executions, HTTP API, Node.js runtime
+  - job_name: 'n8n'
+    static_configs:
+      - targets: ['n8n.proxy:5678']
+    metrics_path: /metrics

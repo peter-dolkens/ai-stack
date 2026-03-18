@@ -9,6 +9,7 @@ COMPOSE_FILES := \
 	compose/postgres.yaml \
 	compose/litellm.yaml \
 	compose/openwebui.yaml \
+	compose/n8n.yaml \
 	compose/nginx.yaml \
 	compose/monitoring.yaml \
 	compose/orchestrator.yaml

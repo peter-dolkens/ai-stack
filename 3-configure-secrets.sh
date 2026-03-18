@@ -41,6 +41,7 @@ declare -A AUTO_GENERATE
 AUTO_GENERATE["LITELLM_MASTER_KEY"]='printf "sk-%s" "$(openssl rand -hex 16)"'
 AUTO_GENERATE["POSTGRES_PASSWORD"]='openssl rand -hex 16'
 AUTO_GENERATE["SEARXNG_SECRET_KEY"]='openssl rand -hex 32'
+AUTO_GENERATE["N8N_ENCRYPTION_KEY"]='openssl rand -hex 32'
 
 # ── Derived keys ───────────────────────────────────────────────────────────────
 # Keys listed here are computed automatically from other already-set values.
@@ -48,6 +49,8 @@ AUTO_GENERATE["SEARXNG_SECRET_KEY"]='openssl rand -hex 32'
 declare -A DERIVE
 DERIVE["DATA_SOURCE_NAME"]='pw=$(grep "^POSTGRES_PASSWORD=" "$env_file" | cut -d= -f2-); printf "postgresql://postgres:%s@postgres:5432/postgres?sslmode=disable" "$pw"'
 DERIVE["DATABASE_URL"]='pw=$(grep "^POSTGRES_PASSWORD=" "$AI_DIR/postgres/.env" | cut -d= -f2-); printf "postgresql://postgres:%s@postgres:5432/litellm" "$pw"'
+DERIVE["GF_AUTH_GOOGLE_ROLE_ATTRIBUTE_PATH"]='em=$(grep "^GF_ADMIN_EMAIL=" "$env_file" | cut -d= -f2-); [[ -n "$em" ]] && printf "email == '"'"'%s'"'"' && '"'"'Admin'"'"' || '"'"'Viewer'"'"'" "$em"'
+DERIVE["DB_POSTGRESDB_PASSWORD"]='grep "^POSTGRES_PASSWORD=" "$AI_DIR/postgres/.env" | cut -d= -f2-'
 
 echo -e "${BOLD}AI Stack Secret Configuration${RESET}"
 echo    "────────────────────────────────────────"
