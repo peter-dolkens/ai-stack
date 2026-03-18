@@ -14,3 +14,10 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - OLLAMA_KEEP_ALIVE=-1
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: proxy
