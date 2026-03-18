@@ -11,6 +11,16 @@ model_list:
       model: "openai/gpt-5.4-pro"
       api_key: "os.environ/OPENAI_API_KEY"
 
+  - model_name: "gpt-5-mini"
+    litellm_params:
+      model: "openai/gpt-5-mini"
+      api_key: "os.environ/OPENAI_API_KEY"
+
+  - model_name: "gpt-5-nano"
+    litellm_params:
+      model: "openai/gpt-5-nano"
+      api_key: "os.environ/OPENAI_API_KEY"
+
   # ── Anthropic ─────────────────────────────────────────────────────────────
   # Requires ANTHROPIC_API_KEY in litellm/.env
   - model_name: "claude-sonnet-4-6"
