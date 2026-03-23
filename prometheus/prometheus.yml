@@ -29,10 +29,15 @@ scrape_configs:
       - targets: ['frigate:5000']
     metrics_path: /api/metrics
 
-  # Ollama model inventory, VRAM usage, running models
+  # Ollama model inventory (installed models, VRAM sizes)
   - job_name: 'ollama'
     static_configs:
       - targets: ['ollama_exporter:8000']
+
+  # Ollama running models — currently loaded in memory, VRAM usage, context length
+  - job_name: 'ollama_ps'
+    static_configs:
+      - targets: ['ollama_ps_exporter:9879']
 
   # Whisper STT — health + transcription metrics
   - job_name: 'whisper'

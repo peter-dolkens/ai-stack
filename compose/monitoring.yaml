@@ -97,6 +97,19 @@ services:
     networks:
       - monitoring
 
+  ollama_ps_exporter:
+    image: ollama-ps-exporter:local
+    container_name: ollama_ps_exporter
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=host.docker.internal:11434
+      - PORT=9879
+      - INTERVAL=15
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - monitoring
+
   nginx_exporter:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: nginx_exporter
