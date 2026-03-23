@@ -33,6 +33,97 @@ model_list:
       model: "anthropic/claude-haiku-4-5-20251001"
       api_key: "os.environ/ANTHROPIC_API_KEY"
 
+  # ── Ollama (local) ────────────────────────────────────────────────────────
+  - model_name: "deepseek-r1:32b"
+    litellm_params:
+      model: "ollama/deepseek-r1:32b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "glm-4.7-flash"
+    litellm_params:
+      model: "ollama/glm-4.7-flash:q4_k_m"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "qwen3:14b"
+    litellm_params:
+      model: "ollama/qwen3:14b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "gpt-oss:20b"
+    litellm_params:
+      model: "ollama/gpt-oss:20b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "qwen2.5-coder:14b"
+    litellm_params:
+      model: "ollama/qwen2.5-coder:14b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "llama3.2-vision:11b"
+    litellm_params:
+      model: "ollama/llama3.2-vision:11b"
+      api_base: "http://host.docker.internal:11434"
+    model_info:
+      supports_vision: true
+
+  - model_name: "qwen3:32b"
+    litellm_params:
+      model: "ollama/qwen3:32b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "qwen3.5:27b"
+    litellm_params:
+      model: "ollama/qwen3.5:27b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "qwen3:30b-a3b"
+    litellm_params:
+      model: "ollama/qwen3:30b-a3b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "llama3.1:8b"
+    litellm_params:
+      model: "ollama/llama3.1:8b"
+      api_base: "http://host.docker.internal:11434"
+
+  - model_name: "nomic-embed-text"
+    litellm_params:
+      model: "ollama/nomic-embed-text"
+      api_base: "http://host.docker.internal:11434"
+    model_info:
+      mode: "embedding"
+
+
+  # ── Azure AI Foundry ──────────────────────────────────────────────────────
+  # Requires FOUNDRY_API_KEY in litellm/.env
+  - model_name: "gpt-5.2-chat (cs)"
+    litellm_params:
+      model: "azure/gpt-5.2-chat"
+      api_base: "https://peter-mgghsc5k-swedencentral.cognitiveservices.azure.com"
+      api_version: "2025-04-01-preview"
+      api_key: "os.environ/FOUNDRY_API_KEY"
+
+  - model_name: "gpt-oss:120b (cs)"
+    litellm_params:
+      model: "azure_ai/gpt-oss-120b"
+      api_base: "https://peter-mgghsc5k-swedencentral.services.ai.azure.com/models"
+      api_version: "2024-05-01-preview"
+      api_key: "os.environ/FOUNDRY_API_KEY"
+
+  - model_name: "gpt-4.1 (cs)"
+    litellm_params:
+      model: "azure/gpt-4.1"
+      api_base: "https://peter-mgghsc5k-swedencentral.cognitiveservices.azure.com"
+      api_version: "2025-01-01-preview"
+      api_key: "os.environ/FOUNDRY_API_KEY"
+
+  - model_name: "gpt-4o (cs)"
+    litellm_params:
+      model: "azure/gpt-4o"
+      api_base: "https://peter-mgghsc5k-swedencentral.cognitiveservices.azure.com"
+      api_version: "2025-01-01-preview"
+      api_key: "os.environ/FOUNDRY_API_KEY"
+
   # ── Google Gemini ─────────────────────────────────────────────────────────
   # Requires GEMINI_API_KEY in litellm/.env
   - model_name: "gemini-2.0-flash"
@@ -47,6 +138,9 @@ litellm_settings:
 
   # Drop unsupported parameters from requests (e.g. params a model doesn't accept)
   drop_params: true
+
+  # Allow time for large Ollama models to load/swap (seconds)
+  request_timeout: 600
 
 router_settings:
   # Retry failed requests up to 2 times before surfacing the error

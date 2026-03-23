@@ -12,15 +12,17 @@ services:
     env_file:
       - /ai/open-webui/.env
     environment:
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
       # LiteLLM proxy — set OPENAI_API_KEY in open-webui/.env to LITELLM_MASTER_KEY from litellm/.env.
       - OPENAI_API_BASE_URL=http://litellm:4000
+      - ENABLE_OLLAMA_API=false
+      # RAG embedding via LiteLLM
+      - RAG_EMBEDDING_ENGINE=openai
+      - RAG_EMBEDDING_MODEL=nomic-embed-text
+      - RAG_OPENAI_API_BASE_URL=http://litellm:4000
       - ENABLE_OAUTH_SIGNUP=false
       - ENABLE_LOGIN_FORM=false
       - OAUTH_PROVIDER_NAME=Google
       - OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 networks:
   proxy:
