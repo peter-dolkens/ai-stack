@@ -1,0 +1,225 @@
+{
+  "id": "jZGSoFjrCHiw7wrS",
+  "name": "Platform Alert Investigator",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "https://app.slack.com/client/TEYSATJJE/C01B0JF75H7",
+          "mode": "url"
+        },
+        "options": {
+          "resolveIds": true
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -80
+      ],
+      "id": "629e939c-9d81-4192-b9c7-f9528c0a498a",
+      "name": "Slack Trigger",
+      "webhookId": "2f729ff2-b2fd-424d-bc79-9ae8c3cc5d89",
+      "credentials": {
+        "slackApi": {
+          "id": "ozsavCtpO86MX3wy",
+          "name": "Slack account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -272
+      ],
+      "id": "ewt-pai-001",
+      "name": "Execute Workflow Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f80365a5-ae9a-46b8-93d1-4f6a4a372fe9",
+              "leftValue": "={{ $json.app_id }}",
+              "rightValue": "A0AMDAE4AB0",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -160,
+        -176
+      ],
+      "id": "d2e8cba3-2090-4cf5-ae6b-dcf80a2aec9e",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ctx-001",
+              "name": "context",
+              "value": "={{ 'Cluster: ' + $json.username + '\\n\\n' + $json.attachments[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b1c2d3e4-0001-0001-0001-000000000001",
+      "name": "Build Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        64,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "IO4uuwvvEa0tKVoU",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "b1c2d3e4-0002-0002-0002-000000000002",
+      "name": "SRE Action Plan",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Filter').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Filter').item.json.ts }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        512,
+        -176
+      ],
+      "id": "2b187de6-cf40-49f4-bff3-7e688cb2fc4c",
+      "name": "Send a message",
+      "webhookId": "00082d5b-dd0f-4ee3-96ec-6fa0f4b66dd6",
+      "credentials": {
+        "slackApi": {
+          "id": "ozsavCtpO86MX3wy",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "SRE Action Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SRE Action Plan": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

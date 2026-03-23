@@ -1,0 +1,38 @@
+name: mcp
+
+# MCP (Model Context Protocol) server pool.
+# Add new servers here as additional services — they share the proxy network
+# so n8n, OpenWebUI, and other containers reach them by container name.
+# External access (Claude Code, etc.) is via nginx vhosts.
+
+services:
+  n8n-mcp:
+    image: ghcr.io/czlonkowski/n8n-mcp:latest
+    container_name: n8n-mcp
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - /ai/mcp/n8n-mcp/data:/app/data
+    env_file:
+      - /ai/mcp/n8n-mcp/.env
+    environment:
+      - MCP_MODE=http
+      - PORT=3000
+      - NODE_ENV=production
+      - N8N_API_URL=http://n8n:5678
+      - N8N_MCP_TELEMETRY_DISABLED=true
+      - AUTH_RATE_LIMIT_MAX=10000
+      - AUTH_RATE_LIMIT_WINDOW=60000
+      - TRUST_PROXY=1
+      - SESSION_TIMEOUT_MINUTES=480
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  proxy:
+    external: true
+    name: proxy

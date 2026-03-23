@@ -1,0 +1,511 @@
+{
+  "id": "NAzxH4JB9cbsE4rz",
+  "name": "Platform Incident Investigator",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ewt-ii-001",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [-816, -240]
+    },
+    {
+      "parameters": {
+        "trigger": ["message"],
+        "channelId": {"__rl": true, "value": "https://app.slack.com/client/TEYSATJJE/CHTU258FQ", "mode": "url"},
+        "options": {"resolveIds": true}
+      },
+      "id": "inc-001",
+      "name": "Slack Trigger",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [-816, -48],
+      "webhookId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}},
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst staticData = $getWorkflowStaticData('global');\n\n// Clean up entries older than 7 days\nconst cutoff = (Date.now() / 1000) - (7 * 24 * 60 * 60);\nif (!staticData.processed) staticData.processed = {};\nfor (const ts of Object.keys(staticData.processed)) {\n  if (parseFloat(ts) < cutoff) delete staticData.processed[ts];\n}\nfor (const ts of Object.keys(staticData)) {\n  if (ts !== 'processed' && parseFloat(ts) < cutoff) delete staticData[ts];\n}\n\n// Drop everything except plain messages and message_changed\nif (item.subtype && item.subtype !== 'message_changed') {\n  return [];\n}\n\n// Unwrap message_changed — real content is in item.message\nconst isMessageChanged = item.subtype === 'message_changed';\nlet msg = item;\nif (isMessageChanged && item.message) {\n  msg = { ...item.message, channel: item.channel, event_ts: item.event_ts };\n  // Drop deleted/hidden messages (tombstone, no text, or hidden flag)\n  if (!msg.text || msg.hidden || msg.subtype === 'tombstone') return [];\n}\n\nreturn [{ json: { ...msg, isMessageChanged } }];"
+      },
+      "id": "inc-002",
+      "name": "Normalize Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-592, -144]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3},
+          "conditions": [{"id": "msg-changed-001", "leftValue": "={{ $json.isMessageChanged }}", "rightValue": true, "operator": {"type": "boolean", "operation": "equals"}}],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "inc-035",
+      "name": "IF Message Changed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-368, -240]
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $input.item.json;\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.processed) staticData.processed = {};\n\n// If already processed by the original message, drop immediately\nif (staticData.processed[msg.ts]) return [];\n\n// Not processed yet \u2014 proceed to Wait\nreturn [{ json: msg }];"
+      },
+      "id": "inc-038",
+      "name": "Pre-check Dedup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-144, -432]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "inc-036",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [80, -432],
+      "webhookId": "f3a4b5c6-d7e8-9012-f3a4-b5c6d7e89012"
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $input.item.json;\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.processed) staticData.processed = {};\n\nif (staticData.processed[msg.ts]) return [];\nstaticData.processed[msg.ts] = true;\n\nconst { isMessageChanged, ...cleanMsg } = msg;\nreturn [{ json: cleanMsg }];"
+      },
+      "id": "inc-037",
+      "name": "Dedup Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [80, -144]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst isNewIncident = !item.thread_ts || item.thread_ts === item.ts;\nreturn [{ json: { ...item, isNewIncident } }];"
+      },
+      "id": "inc-003",
+      "name": "Route Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [304, -144]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3},
+          "conditions": [{"id": "inc-if-001", "leftValue": "={{ $json.isNewIncident }}", "rightValue": true, "operator": {"type": "boolean", "operation": "equals"}}],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "inc-004",
+      "name": "IF New Incident",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [528, -144]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst text = item.text || '';\nconst ts = parseFloat(item.ts);\n\nconst psnMatch = text.match(/\\bPSN-(\\d+)\\b/i);\n\nlet channelName;\nif (psnMatch) {\n  channelName = `incident-response-psn-${psnMatch[1]}`;\n} else {\n  const date = new Date(ts * 1000);\n  const dateStr = date.toISOString().slice(0, 10);\n  channelName = `incident-response-${dateStr}`;\n}\n\nreturn [{ json: { ...item, channelName } }];"
+      },
+      "id": "inc-005",
+      "name": "Build Channel Name",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [752, -240]
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "channelId": "={{ $json.channelName }}",
+        "channelVisibility": "private"
+      },
+      "id": "inc-018",
+      "name": "Create Private Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [976, -240],
+      "webhookId": "6710a973-8c23-465c-938a-969869efd4fc",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}},
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst channelName = $('Build Channel Name').first().json.channelName;\nreturn [{ json: { channelId: item.id || null, channelName } }];"
+      },
+      "id": "inc-023",
+      "name": "Resolve Channel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, -240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3},
+          "conditions": [{"id": "lookup-if-001", "leftValue": "={{ $json.channelId }}", "rightValue": "", "operator": {"type": "string", "operation": "empty"}}],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "inc-024",
+      "name": "IF Needs Lookup",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1424, -240]
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {"types": ["private_channel"]}
+      },
+      "id": "inc-025",
+      "name": "Find Existing Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [1200, -432],
+      "webhookId": "e5f6a7b8-c9d0-1234-ef01-234567890123",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "const channelName = $('Build Channel Name').first().json.channelName;\nconst found = $input.all().find(item => item.json.name === channelName);\nreturn [{ json: { channelId: found?.json?.id || null, channelName } }];"
+      },
+      "id": "inc-026",
+      "name": "Extract Channel ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1424, -432]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { channelId: $input.item.json.channelId } }];"
+      },
+      "id": "inc-027",
+      "name": "Resolved Channel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1648, -240]
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "invite",
+        "channelId": {"__rl": true, "value": "={{ $('Resolved Channel').item.json.channelId }}", "mode": "id"},
+        "userIds": ["UF0B1KRGW"]
+      },
+      "id": "inc-019",
+      "name": "Invite On-Call",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [1872, -240],
+      "webhookId": "7821b084-9d34-576d-a49b-0ef8a8990512",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}},
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst channelId = $('Resolved Channel').first().json.channelId;\nconst threadTs = $('Build Channel Name').first().json.ts;\nstaticData[threadTs] = channelId;\nreturn $input.all();"
+      },
+      "id": "inc-008",
+      "name": "Store Mapping",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2096, -240]
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $('Build Channel Name').first().json.text || '';\nconst match = text.match(/https:\\/\\/(\\w[\\w.-]*\\.atlassian\\.net)\\/browse\\/([A-Z][A-Z0-9]+-\\d+)/);\n\nreturn [{\n  json: {\n    jiraKey: match ? match[2] : null,\n    jiraHost: match ? match[1] : null,\n    jiraUrl: match ? match[0] : null,\n    privateChannelId: $('Resolved Channel').first().json.channelId\n  }\n}];"
+      },
+      "id": "inc-014",
+      "name": "Extract Jira Info",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2320, -336]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 2},
+          "conditions": [{"id": "jira-if-001", "leftValue": "={{ !!$json.jiraKey }}", "rightValue": true, "operator": {"type": "boolean", "operation": "equals"}}],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "inc-015",
+      "name": "IF Has Jira Ticket",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2544, -336]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ $json.jiraKey }}",
+        "additionalFields": {}
+      },
+      "id": "inc-016",
+      "name": "Fetch Jira Ticket",
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [2768, -336],
+      "credentials": {"jiraSoftwareCloudApi": {"id": "RTOd3XiczLoJLjki", "name": "Jira SW Cloud account"}},
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "function extractText(node) {\n  if (!node) return '';\n  if (node.type === 'text') return node.text || '';\n  if (node.type === 'hardBreak') return '\\n';\n  if (node.type === 'mention') return node.attrs?.text || '';\n  if (node.content) {\n    const inner = node.content.map(extractText).join('');\n    if (node.type === 'paragraph') return inner + '\\n';\n    if (node.type === 'heading') return '*' + inner.trim() + '*\\n';\n    if (node.type === 'listItem') return '\\u2022 ' + inner.trimEnd() + '\\n';\n    if (node.type === 'codeBlock') return '`' + inner + '`\\n';\n    if (node.type === 'blockquote') return '> ' + inner;\n    return inner;\n  }\n  return '';\n}\n\nconst fields = $input.item.json.fields || {};\nconst rawDesc = fields.description;\n\nlet description = '';\nif (typeof rawDesc === 'string') {\n  description = rawDesc.trim();\n} else if (rawDesc?.content) {\n  description = extractText(rawDesc).trim();\n}\n\nif (description.length > 600) {\n  description = description.slice(0, 597) + '...';\n}\n\nreturn [{ json: { ...$input.item.json, formattedDescription: description } }];"
+      },
+      "id": "inc-028",
+      "name": "Format Jira Details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2992, -336]
+    },
+    {
+      "parameters": {
+        "jsCode": "const originalText = $('Build Channel Name').first().json.text || '';\nconst channel = $('Build Channel Name').first().json.channel;\nconst ts = $('Build Channel Name').first().json.ts;\nconst privateChannelId = $('Resolved Channel').first().json.channelId;\nconst input = $input.item.json;\n\n// Build Slack thread permalink\nconst tsPerma = 'p' + String(ts).replace('.', '');\nconst threadLink = `https://app.slack.com/archives/${channel}/${tsPerma}`;\n\nlet context = `Slack Incident Report:\\n${originalText}`;\n\nif (input.fields) {\n  const jiraInfo = $('Extract Jira Info').first().json;\n  const summary = input.fields.summary || '';\n  const status = input.fields.status?.name || '';\n  const priority = input.fields.priority?.name || 'None';\n  const issueType = input.fields.issuetype?.name || '';\n  const description = input.formattedDescription || '';\n\n  context += `\\n\\nJira Ticket: ${jiraInfo.jiraKey}\\nSummary: ${summary}\\nStatus: ${status} | Priority: ${priority} | Type: ${issueType}`;\n  if (description) context += `\\n\\nDescription:\\n${description}`;\n}\n\nreturn [{ json: { context, privateChannelId, threadLink } }];"
+      },
+      "id": "inc-029",
+      "name": "Build Incident Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3216, -336]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.4",
+          "mode": "list",
+          "cachedResultName": "GPT-5.4"
+        },
+        "responses": {
+          "values": [{"content": "={{ $json.context }}"}]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {
+          "instructions": "You are an incident manager. Produce a concise, factual incident summary for an on-call engineering team.\n\nInclude:\n- What is affected and how\n- Severity and urgency indicators\n- Any known cause or related Jira ticket context\n- Key details from the report\n\nFormatting rules:\n- Slack mrkdwn ONLY: use *bold* (never **bold** or ### headers)\n- 150-250 words max\n- No preamble \u2014 start directly with the summary",
+          "maxTokens": 4096
+        }
+      },
+      "id": "inc-030",
+      "name": "Summarize Incident",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [3440, -336],
+      "credentials": {"openAiApi": {"id": "Flf3hrazPgqYR4LD", "name": "OpenAi account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "const outputItems = $input.first().json.output;\nconst message = outputItems.find(item => item.content && item.content.length > 0);\nconst texts = message.content.map(item => {\n  let text = item.text;\n  try {\n    const parsed = JSON.parse(text);\n    const firstString = Object.values(parsed).find(v => typeof v === 'string');\n    if (firstString) text = firstString;\n  } catch (e) {\n    const match = text.match(/\"\\w+\"\\s*:\\s*\"([\\s\\S]*)/);\n    if (match) text = match[1].replace(/\"\\s*\\}?\\s*$/, '').replace(/\\\\n/g, '\\n');\n  }\n  return text;\n});\nreturn [{ json: { summary: texts.join('\\n') } }];"
+      },
+      "id": "inc-031",
+      "name": "Extract Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3664, -336]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {"__rl": true, "value": "={{ $('Build Incident Context').first().json.privateChannelId }}", "mode": "id"},
+        "text": "={{ ':rotating_light: *Incident Summary*\\n\\n:link: <' + $('Build Incident Context').first().json.threadLink + '|View original thread>\\n\\n' + $json.summary }}",
+        "otherOptions": {"includeLinkToWorkflow": false, "mrkdwn": true}
+      },
+      "id": "inc-032",
+      "name": "Post Incident Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [3888, -336],
+      "webhookId": "c1d2e3f4-a5b6-7890-cdef-012345678901",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}}
+    },
+    {
+      "parameters": {
+        "workflowId": {"__rl": true, "value": "IO4uuwvvEa0tKVoU", "mode": "id"},
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {"context": "={{ $('Build Incident Context').first().json.context }}"}
+        },
+        "options": {}
+      },
+      "id": "inc-033",
+      "name": "Call SRE Action Plan",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [4112, -336]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {"__rl": true, "value": "={{ $('Build Incident Context').first().json.privateChannelId }}", "mode": "id"},
+        "text": "={{ ':memo: *Recommended Action Plan*\\n\\n' + $json.output }}",
+        "otherOptions": {"includeLinkToWorkflow": false, "mrkdwn": true}
+      },
+      "id": "inc-034",
+      "name": "Post SRE Plan",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [4336, -336],
+      "webhookId": "d2e3f4a5-b6c7-8901-def0-123456789012",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst threadTs = $input.item.json.thread_ts;\nconst incidentChannelId = staticData[threadTs] || null;\nreturn [{ json: { ...($input.item.json), incidentChannelId } }];"
+      },
+      "id": "inc-011",
+      "name": "Lookup Channel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [752, 48]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3},
+          "conditions": [{"id": "inc-filter-002", "leftValue": "={{ $json.incidentChannelId }}", "rightValue": "", "operator": {"type": "string", "operation": "notEquals"}}],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "inc-012",
+      "name": "Has Incident Channel",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [976, 48]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {"__rl": true, "value": "={{ $json.incidentChannelId }}", "mode": "id"},
+        "text": "={{ ':speech_balloon: *Update from support thread:*\\n\\n' + $json.text }}",
+        "otherOptions": {"includeLinkToWorkflow": false, "mrkdwn": true}
+      },
+      "id": "inc-013",
+      "name": "Forward Reply",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [1200, 48],
+      "webhookId": "ecf81228-4405-4d5c-bacc-be0eca1d5ac1",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}}
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst text = item.text || '';\nconst incMatch = text.match(/\\bINC-(\\d+)\\b/i);\n\nreturn [{\n  json: {\n    ...item,\n    incKey: incMatch ? `inc-${incMatch[1]}` : null\n  }\n}];"
+      },
+      "id": "inc-020",
+      "name": "Extract INC Ticket",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1424, 48]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 3},
+          "conditions": [{"id": "inc-if-002", "leftValue": "={{ $json.incKey }}", "rightValue": "", "operator": {"type": "string", "operation": "notEmpty"}}],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "inc-021",
+      "name": "IF Has INC Ticket",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1648, 48]
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "rename",
+        "channelId": {"__rl": true, "value": "={{ $json.incidentChannelId }}", "mode": "id"},
+        "name": "={{ 'incident-response-' + $json.incKey }}"
+      },
+      "id": "inc-022",
+      "name": "Rename Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [1872, 48],
+      "webhookId": "d4e5f6a7-b8c9-0123-def0-123456789012",
+      "credentials": {"slackApi": {"id": "ozsavCtpO86MX3wy", "name": "Slack account"}},
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {"main": [[{"node": "Normalize Message", "type": "main", "index": 0}]]},
+    "Slack Trigger": {"main": [[{"node": "Normalize Message", "type": "main", "index": 0}]]},
+    "Normalize Message": {"main": [[{"node": "IF Message Changed", "type": "main", "index": 0}]]},
+    "IF Message Changed": {"main": [
+      [{"node": "Pre-check Dedup", "type": "main", "index": 0}],
+      [{"node": "Dedup Check", "type": "main", "index": 0}]
+    ]},
+    "Pre-check Dedup": {"main": [[{"node": "Wait", "type": "main", "index": 0}]]},
+    "Wait": {"main": [[{"node": "Dedup Check", "type": "main", "index": 0}]]},
+    "Dedup Check": {"main": [[{"node": "Route Message", "type": "main", "index": 0}]]},
+    "Route Message": {"main": [[{"node": "IF New Incident", "type": "main", "index": 0}]]},
+    "IF New Incident": {"main": [
+      [{"node": "Build Channel Name", "type": "main", "index": 0}],
+      [{"node": "Lookup Channel", "type": "main", "index": 0}]
+    ]},
+    "Build Channel Name": {"main": [[{"node": "Create Private Channel", "type": "main", "index": 0}]]},
+    "Create Private Channel": {"main": [[{"node": "Resolve Channel", "type": "main", "index": 0}]]},
+    "Resolve Channel": {"main": [[{"node": "IF Needs Lookup", "type": "main", "index": 0}]]},
+    "IF Needs Lookup": {"main": [
+      [{"node": "Find Existing Channel", "type": "main", "index": 0}],
+      [{"node": "Resolved Channel", "type": "main", "index": 0}]
+    ]},
+    "Find Existing Channel": {"main": [[{"node": "Extract Channel ID", "type": "main", "index": 0}]]},
+    "Extract Channel ID": {"main": [[{"node": "Resolved Channel", "type": "main", "index": 0}]]},
+    "Resolved Channel": {"main": [[{"node": "Invite On-Call", "type": "main", "index": 0}]]},
+    "Invite On-Call": {"main": [[{"node": "Store Mapping", "type": "main", "index": 0}]]},
+    "Store Mapping": {"main": [[{"node": "Extract Jira Info", "type": "main", "index": 0}]]},
+    "Extract Jira Info": {"main": [[{"node": "IF Has Jira Ticket", "type": "main", "index": 0}]]},
+    "IF Has Jira Ticket": {"main": [
+      [{"node": "Fetch Jira Ticket", "type": "main", "index": 0}],
+      [{"node": "Build Incident Context", "type": "main", "index": 0}]
+    ]},
+    "Fetch Jira Ticket": {"main": [[{"node": "Format Jira Details", "type": "main", "index": 0}]]},
+    "Format Jira Details": {"main": [[{"node": "Build Incident Context", "type": "main", "index": 0}]]},
+    "Build Incident Context": {"main": [[
+      {"node": "Summarize Incident", "type": "main", "index": 0},
+      {"node": "Call SRE Action Plan", "type": "main", "index": 0}
+    ]]},
+    "Summarize Incident": {"main": [[{"node": "Extract Summary", "type": "main", "index": 0}]]},
+    "Extract Summary": {"main": [[{"node": "Post Incident Summary", "type": "main", "index": 0}]]},
+    "Post Incident Summary": {"main": [[]]},
+    "Call SRE Action Plan": {"main": [[{"node": "Post SRE Plan", "type": "main", "index": 0}]]},
+    "Lookup Channel": {"main": [[{"node": "Has Incident Channel", "type": "main", "index": 0}]]},
+    "Has Incident Channel": {"main": [[{"node": "Forward Reply", "type": "main", "index": 0}]]},
+    "Forward Reply": {"main": [[{"node": "Extract INC Ticket", "type": "main", "index": 0}]]},
+    "Extract INC Ticket": {"main": [[{"node": "IF Has INC Ticket", "type": "main", "index": 0}]]},
+    "IF Has INC Ticket": {"main": [
+      [{"node": "Rename Channel", "type": "main", "index": 0}],
+      []
+    ]}
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "binaryMode": "separate"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "id": "IO4uuwvvEa0tKVoU",
+  "name": "SRE Action Plan",
+  "active": true,
+  "nodes": [
+    {
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        -160
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "context"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0002-0002-0002-000000000002",
+      "name": "Message a model",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.4",
+          "mode": "list",
+          "cachedResultName": "GPT-5.4"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "={{ $json.context }}"
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {
+          "instructions": "You are an on-call SRE. Given an incident report, produce an urgent triage checklist for the on-call engineer.\n\nFocus ONLY on: what to check right now, what signals to look for, how to isolate the fault, and what to rule out fast. Do NOT include remediation steps, RCA, post-mortems, or communication tasks.\n\nStrict formatting rules:\n- Plain text response ONLY — no JSON, no code blocks wrapping the whole response\n- Slack mrkdwn ONLY: use *bold* (never **bold** or ### headers)\n- Use `backticks` for every command, log query, metric, or technical value\n- Numbered list, one step per line, no sub-bullets\n- No preamble, no summary, no explanations — start immediately with 1.\n- 5-10 steps max, ordered by: confirm the symptom → check the obvious → narrow the blast radius → identify the failing component\n- Reference specific services, ticket numbers, and details from the incident context in all steps",
+          "maxTokens": 10240
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "Flf3hrazPgqYR4LD",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0003-0003-0003-000000000003",
+      "name": "Extract Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "const outputItems = $input.first().json.output;\nconst message = outputItems.find(item => item.content && item.content.length > 0);\nconst texts = message.content.map(item => {\n  let text = item.text;\n  try {\n    const parsed = JSON.parse(text);\n    const firstString = Object.values(parsed).find(v => typeof v === 'string');\n    if (firstString) text = firstString;\n  } catch (e) {\n    const match = text.match(/\"\\w+\"\\s*:\\s*\"([\\s\\S]*)/);\n    if (match) text = match[1].replace(/\"\\s*\\}?\\s*$/, '').replace(/\\\\n/g, '\\n');\n  }\n  return text;\n});\nreturn [{ json: { output: texts.join('\\n') } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Extract Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  }
+}
