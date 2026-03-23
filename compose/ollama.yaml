@@ -17,6 +17,12 @@ services:
       - OLLAMA_NUM_PARALLEL=2
     networks:
       - proxy
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list > /dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   proxy:

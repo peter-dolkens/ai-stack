@@ -14,3 +14,9 @@ services:
       --voice en_GB-alan-medium
       --data-dir /data
       --download-dir /data
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.settimeout(5); s.connect(('127.0.0.1', 10200)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

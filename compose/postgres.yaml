@@ -11,6 +11,12 @@ services:
       - /ai/postgres/data:/var/lib/postgresql/data
     networks:
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 networks:
   postgres:
