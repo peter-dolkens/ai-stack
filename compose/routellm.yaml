@@ -1,0 +1,21 @@
+name: routellm
+
+services:
+  routellm:
+    image: routellm:local
+    container_name: routellm
+    restart: unless-stopped
+    env_file:
+      - /ai/routellm/.env
+    environment:
+      # Cache HuggingFace model weights (MF router) across restarts
+      - HF_HOME=/cache
+    volumes:
+      - /ai/routellm/cache:/cache
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: proxy
