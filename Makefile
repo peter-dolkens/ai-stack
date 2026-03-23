@@ -96,9 +96,9 @@ pull: ## Pull latest upstream images (does not affect local: images)
 
 ## n8n
 
-.PHONY: n8n-provision
-n8n-provision: ## Push all workflows from n8n/workflows/*.json to n8n (create or update)
-	bash n8n/provision.sh
+.PHONY: n8n-import
+n8n-import: ## Push all workflows from n8n/workflows/*.json to n8n (create or update)
+	bash n8n/import.sh
 
 .PHONY: n8n-export
 n8n-export: ## Pull all workflows from n8n into n8n/workflows/*.workflow.json
