@@ -8,6 +8,8 @@ grafana/data/
 
 tts/voices/
 whisper/cache/
+routellm/cache/
+routellm/.env
 
 # Secrets
 frigate/.env
@@ -21,6 +23,8 @@ open-webui/.env
 searxng/.env
 n8n/.env
 n8n/data/
+mcp/*/.env
+mcp/*/data/
 
 # Open WebUI data
 open-webui/vector_db/

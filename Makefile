@@ -10,6 +10,7 @@ COMPOSE_FILES := \
 	compose/litellm.yaml \
 	compose/openwebui.yaml \
 	compose/n8n.yaml \
+	compose/mcp.yaml \
 	compose/nginx.yaml \
 	compose/monitoring.yaml \
 	compose/orchestrator.yaml
@@ -28,7 +29,7 @@ help: ## Show this help
 		printf "  \033[36mmake <target>\033[0m\n\n"; \
 		printf "\033[1mTargets:\033[0m\n" \
 	} \
-	/^[a-zA-Z_-]+:.*?##/ { \
+	/^[a-zA-Z0-9_-]+:.*?##/ { \
 		printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2 \
 	} \
 	/^## / { \
@@ -88,3 +89,11 @@ logs: ## Follow logs for all containers (Ctrl-C to exit)
 .PHONY: pull
 pull: ## Pull latest upstream images (does not affect local: images)
 	sudo docker compose $(COMPOSE_ARGS) pull --ignore-buildable
+
+# ── n8n ───────────────────────────────────────────────────────────────────────
+
+## n8n
+
+.PHONY: n8n-provision
+n8n-provision: ## Push all workflows from n8n/workflows/*.json to n8n (create or update)
+	bash n8n/provision.sh

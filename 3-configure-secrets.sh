@@ -42,6 +42,8 @@ AUTO_GENERATE["LITELLM_MASTER_KEY"]='printf "sk-%s" "$(openssl rand -hex 16)"'
 AUTO_GENERATE["POSTGRES_PASSWORD"]='openssl rand -hex 16'
 AUTO_GENERATE["SEARXNG_SECRET_KEY"]='openssl rand -hex 32'
 AUTO_GENERATE["N8N_ENCRYPTION_KEY"]='openssl rand -hex 32'
+AUTO_GENERATE["OAUTH2_PROXY_COOKIE_SECRET"]='openssl rand -hex 16'
+AUTO_GENERATE["AUTH_TOKEN"]='openssl rand -hex 32'
 
 # ── Derived keys ───────────────────────────────────────────────────────────────
 # Keys listed here are computed automatically from other already-set values.
