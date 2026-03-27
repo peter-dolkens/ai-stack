@@ -53,6 +53,7 @@ DERIVE["DATA_SOURCE_NAME"]='pw=$(grep "^POSTGRES_PASSWORD=" "$env_file" | cut -d
 DERIVE["DATABASE_URL"]='pw=$(grep "^POSTGRES_PASSWORD=" "$AI_DIR/postgres/.env" | cut -d= -f2-); printf "postgresql://postgres:%s@postgres:5432/litellm" "$pw"'
 DERIVE["GF_AUTH_GOOGLE_ROLE_ATTRIBUTE_PATH"]='em=$(grep "^GF_ADMIN_EMAIL=" "$env_file" | cut -d= -f2-); [[ -n "$em" ]] && printf "email == '"'"'%s'"'"' && '"'"'Admin'"'"' || '"'"'Viewer'"'"'" "$em"'
 DERIVE["DB_POSTGRESDB_PASSWORD"]='grep "^POSTGRES_PASSWORD=" "$AI_DIR/postgres/.env" | cut -d= -f2-'
+DERIVE["GITEA__database__PASSWD"]='grep "^POSTGRES_PASSWORD=" "$AI_DIR/postgres/.env" | cut -d= -f2-'
 
 echo -e "${BOLD}AI Stack Secret Configuration${RESET}"
 echo    "────────────────────────────────────────"

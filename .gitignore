@@ -23,6 +23,8 @@ open-webui/.env
 searxng/.env
 n8n/.env
 n8n/data/
+gitea/.env
+gitea/data/
 mcp/*/.env
 mcp/*/data/
 

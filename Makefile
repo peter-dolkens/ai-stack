@@ -13,6 +13,7 @@ COMPOSE_FILES := \
 	compose/n8n.yaml \
 	compose/mcp.yaml \
 	compose/searxng.yaml \
+	compose/gitea.yaml \
 	compose/nginx.yaml \
 	compose/monitoring.yaml \
 	compose/orchestrator.yaml
@@ -91,6 +92,27 @@ logs: ## Follow logs for all containers (Ctrl-C to exit)
 .PHONY: pull
 pull: ## Pull latest upstream images (does not affect local: images)
 	sudo docker compose $(COMPOSE_ARGS) pull --ignore-buildable
+
+# ── n8n ───────────────────────────────────────────────────────────────────────
+
+## n8n
+
+# ── Gitea ─────────────────────────────────────────────────────────────────────
+
+## Gitea
+
+.PHONY: gitea-setup-oauth
+gitea-setup-oauth: ## Configure Google OAuth in Gitea (run once after first start)
+	sudo docker exec -u git gitea sh -c ' \
+		gitea admin auth list | grep -q Google \
+		&& echo "Google OAuth source already configured" \
+		|| gitea admin auth add-oauth \
+			--name Google \
+			--provider openidConnect \
+			--key "$$GITEA_OAUTH_CLIENT_ID" \
+			--secret "$$GITEA_OAUTH_CLIENT_SECRET" \
+			--auto-discover-url "https://accounts.google.com/.well-known/openid-configuration" \
+		--icon-url "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"'
 
 # ── n8n ───────────────────────────────────────────────────────────────────────
 
